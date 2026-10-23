@@ -61,22 +61,28 @@ Loja (navegador)                          TI (painel)
 
 ## 4. Tipos de chamado (categorias)
 
-| Categoria | Subcategorias | Tipo | Prioridade padrão |
-|---|---|---|---|
-| **1. Caixa / PDV** | PDV não abre · Impressora fiscal / NFC-e · Maquininha / TEF · Leitor de código de barras · Gaveta | Incidente | **Alta** |
-| **2. ERP (sistema)** | Erro ou travamento · Acesso / senha · Nota fiscal / transferência · Relatório / consulta | Incidente | Alta |
-| **3. Internet e rede** | Sem internet · Internet lenta · Wi-Fi | Incidente | **Alta** |
-| **4. Computador** | Não liga · Lento / travando · Mouse, teclado, monitor | Incidente | Média |
-| **5. Impressora e etiquetas** | Não imprime · Papel / toner · Etiquetadora | Incidente | Média |
-| **6. E-mail e acessos** | Esqueci a senha · Criar / bloquear usuário · E-mail não funciona | Requisição | Média |
-| **7. Câmeras** | Câmera sem imagem · Gravação / acesso remoto | Incidente | Média |
-| **8. SmartStock** | Dúvida · Erro | Incidente | Média |
-| **9. Pedido / instalação** | Instalar programa · Equipamento novo · Mudança de lugar / ponto de rede | Requisição | Baixa |
-| **10. Outros** | — | Incidente | Baixa |
+Estrutura definida pelo responsável em 23/10/2026 (decisões 26 a 29): **14 categorias e 253 problemas**, iguais para as 12 lojas e o CD. A lista completa, com tipo e prioridade padrão de cada problema, fica em [`config/categorias.tsv`](config/categorias.tsv), que é também a fonte usada para criar as categorias no GLPI.
 
-No formulário, a loja responde: *"Isso está impedindo de vender ou de trabalhar?"*. Se sim, o chamado vira **Crítico**. O TI pode mudar a prioridade a qualquer momento, e a mudança fica registrada.
+| Categoria | Grupos |
+|---|---|
+| Geral / Outros | — |
+| Computadores e Hardware | Computador · Periféricos · Manutenção e equipamentos |
+| Impressoras | Funcionamento · Qualidade e configuração · Rede e manutenção |
+| E-mail | — |
+| Relógio de Ponto | Equipamento e funcionamento · Sistema e documentos |
+| Frente de Caixa (PDV) | Sistema de Frente de Caixa · TEF · POS · Pinpad · Troca e movimentação de equipamentos de pagamento · Periféricos do Caixa · Sincronização de Dados |
+| Administrativo | Sistema · Notas Fiscais e Faturamento · Estoque e Produtos · Etiquetas · Relatórios · Cadastros e Permissões |
+| Rede e Internet | — |
+| Acessos e Usuários | Criação e alteração de usuários · Bloqueio e recuperação |
+| SmartStock | — |
+| Sistemas e Aplicativos | — |
+| Telefonia | — |
+| Solicitações e Melhorias | — |
+| Segurança da Informação | — |
 
-**[DECIDIR]** Falta alguma categoria que acontece muito nas lojas?
+- A **unidade** (loja ou CD) é um campo separado da categoria.
+- No formulário, a loja responde: *"Isso está impedindo de vender ou de trabalhar?"*. Se sim, o chamado vira **Crítico**. O TI pode mudar a prioridade a qualquer momento, e a mudança fica registrada.
+- Cada tipo de chamado pode ter perguntas próprias (por exemplo, qual caixa, qual maquininha). Os campos específicos estão em definição.
 
 ---
 
