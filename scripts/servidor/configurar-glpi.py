@@ -342,10 +342,44 @@ def painel(glpi):
                 pass
 
 
+# Perfis do GLPI com nomes em português, pensados nos cargos da Dorémi (decisão 37). Chave: nome original do GLPI.
+PERFIS = {
+    "Self-Service": "Loja / Solicitante",
+    "Observer": "Gestão (aprovação)",
+    "Technician": "Técnico de TI",
+    "Supervisor": "Supervisor de TI",
+    "Super-Admin": "Administrador geral",
+    "Admin": "Administrador",
+    "Hotliner": "Atendente (1º nível)",
+    "Read-Only": "Somente leitura",
+}
+
+
+def entidade(glpi):
+    """Pesquisa de satisfação (nota de 1 a 5, enviada ao solucionar) e fechamento automático 2 dias (48 h) depois."""
+    print("Satisfação e fechamento automático:")
+    desejado = {"autoclose_delay": 2, "inquest_config": 1, "inquest_rate": 100, "inquest_delay": 0,
+                "inquest_max_rate": 5}
+    atual = glpi._pedir("GET", "/Entity/0")
+    muda = {k: v for k, v in desejado.items() if atual.get(k) != v}
+    if muda:
+        print(f"  ~ entidade raiz: {muda}")
+        if APLICAR:
+            glpi._pedir("PUT", "/Entity/0", {"input": muda})
+
+
 def perfis(glpi):
-    """O perfil Observador (vê todos os chamados e aprova, sem alterar) passa a ver também o painel (dashboard)."""
+    """Nomes em português e o perfil de Gestão (vê todos os chamados e aprova, sem alterar) vendo também o painel."""
     print("Perfis:")
-    obs = next(p["id"] for p in glpi.listar("Profile") if p["name"] == "Observer")
+    todos = glpi.listar("Profile")
+    for p in todos:
+        novo = PERFIS.get(p["name"])
+        if novo:
+            print(f"  ~ perfil {p['name']} → {novo}")
+            if APLICAR:
+                glpi._pedir("PUT", f"/Profile/{p['id']}", {"input": {"name": novo}})
+            p["name"] = novo
+    obs = next(p["id"] for p in todos if p["name"] == PERFIS["Observer"])
     for direito in glpi._pedir("GET", f"/Profile/{obs}/ProfileRight?range=0-999"):
         if direito["name"] == "dashboard" and not int(direito["rights"]) & 1:
             print("  + Observador: ver o painel")
@@ -503,6 +537,7 @@ def main():
         cal = calendario(glpi)
         regras(glpi, slas(glpi, cal))
         perfis(glpi)
+        entidade(glpi)
         tarefas(glpi)
         painel(glpi)
         formulario(glpi)
