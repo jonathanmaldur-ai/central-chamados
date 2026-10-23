@@ -32,7 +32,7 @@ A tela principal abre no painel **Assistência**: chamados novos, atrasados, pen
 
 | Prioridade | 1ª resposta | Solução |
 | --- | --- | --- |
-| Crítica | 1 h | 8 h |
+| Crítica | 30 min | 4 h |
 | Alta | 2 h | 2 dias úteis |
 | Normal | 1 dia útil | 3 dias úteis |
 | Baixa | 2 dias úteis | 10 dias úteis |

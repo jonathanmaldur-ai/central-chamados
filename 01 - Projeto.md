@@ -88,11 +88,11 @@ Estrutura definida pelo responsável em 23/10/2026 (decisões 26 a 29): **14 cat
 
 ## 5. SLA (prazos)
 
-Prazos ajustados em 23/10/2026 (decisão 36); arquivo `config/sla.tsv`.
+Prazos ajustados em 23/10/2026 (decisões 36 e 45); arquivo `config/sla.tsv`.
 
 | Prioridade | Quando | 1ª resposta | Solução |
 |---|---|---|---|
-| **Crítica** | Venda ou trabalho parado | 1 h | 8 h |
+| **Crítica** | Venda ou trabalho parado | 30 min | 4 h |
 | **Alta** | Caixa, ERP ou internet com problema, sem parar tudo | 2 h | 2 dias úteis |
 | **Normal** | Computador, impressora, e-mail, acessos | 1 dia útil | 3 dias úteis |
 | **Baixa** | Pedidos, instalações, dúvidas | 2 dias úteis | 10 dias úteis |
