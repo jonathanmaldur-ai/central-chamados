@@ -76,10 +76,10 @@ A loja recebe um e-mail a cada novidade do chamado, e tudo também fica em **Meu
 **Quando for solucionado:**
 
 1. Confira se o problema foi mesmo resolvido.
-2. Responda a pesquisa de satisfação: uma nota de **1 a 5** e, se quiser, um comentário.
-3. Se **não** foi resolvido, recuse a solução no próprio chamado dizendo o que ainda falta; ele volta para o TI.
+2. Se **foi**, aceite a solução no próprio chamado. Se ninguém responder, ele fecha sozinho em **2 dias**.
+3. Se **não** foi resolvido, recuse a solução dizendo o que ainda falta; ele volta para o TI.
 
-Sem resposta da loja, o chamado solucionado fecha sozinho em **2 dias**.
+**Pesquisa de satisfação:** quando o chamado **fecha**, a loja recebe um e-mail com a pesquisa: uma nota de **1 a 5** e, se quiser, um comentário. Leva menos de 1 minuto. As respostas vão para a gestão da empresa, não para o TI, então pode avaliar com sinceridade.
 
 ## 5. Dúvidas e problemas comuns
 

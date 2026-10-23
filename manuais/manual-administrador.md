@@ -56,7 +56,7 @@ O primeiro passo em todo chamado é **assumir**: é isso que conta o prazo de 1�
 2. **Conversar com a loja:** use **Acompanhamento** (a loja recebe por e-mail e responde pelo próprio chamado). Para registrar trabalho seu, com tempo gasto, use **Tarefa**.
 3. **Esperando alguém:** mude o status para **Pendente** e escolha o motivo: aguardando solicitante, aguardando fornecedor ou aguardando peça ou equipamento. O prazo do SLA para de contar enquanto estiver pendente.
 4. **Resolver:** clique em **Solução**, escolha o tipo (Resolvido remotamente, Resolvido no local, Troca de equipamento, Orientação ao usuário ou Cancelado) e descreva o que foi feito.
-5. **Depois de solucionado:** a loja recebe a pesquisa de satisfação (nota de 1 a 5). Se ela não recusar a solução, o chamado fecha sozinho em 2 dias (48 h). Se recusar, ele volta para "Em atendimento".
+5. **Depois de solucionado:** se a loja aceitar a solução, ou depois de 2 dias (48 h) sem resposta, o chamado fecha. Se recusar, ele volta para "Em atendimento". Ao **fechar**, a loja recebe a pesquisa de satisfação (nota de 1 a 5).
 
 **Ajustes que só o TI faz no chamado:**
 
@@ -118,7 +118,8 @@ A tela principal abre no painel **Assistência**, só com chamados: novos, atras
 
 - **Editar o painel:** lápis no canto do painel. Remova um quadro no "x", arraste para reorganizar, adicione no "+". A lua pequena da barra do painel é o modo escuro só do painel (o botão de lua/sol do topo já liga os dois juntos).
 - **Estatísticas gerais:** menu **Assistência → Estatísticas**, por período, categoria, técnico ou localização (unidade).
-- **Satisfação:** toda solução gera a pesquisa de 1 a 5 para a loja. As notas aparecem na aba **Satisfação** de cada chamado e nas estatísticas.
+- **Satisfação:** todo chamado fechado gera a pesquisa de 1 a 5 para a loja. As respostas chegam por e-mail **só para o perfil Gestão (aprovação)**; o TI não recebe nem o convite nem as respostas. Na tela, as notas ficam na aba **Satisfação** de cada chamado e nas estatísticas.
+- **Histórico do chamado:** toda a conversa com a loja (acompanhamentos), as tarefas, a solução, as aprovações e cada mudança de status ou prioridade ficam salvos no chamado, na linha do tempo e na aba **Histórico**. A Gestão vê tudo o que é público; acompanhamentos e tarefas marcados como **privados** ela não vê.
 - **Exportar:** em qualquer lista de chamados, o botão de download gera CSV, Excel ou PDF com os filtros aplicados.
 
 O painel gerencial com SLA cumprido, tempo médio, satisfação e reincidência por loja, e o relatório mensal automático, são a fase 3 do projeto, depois do uso real.
