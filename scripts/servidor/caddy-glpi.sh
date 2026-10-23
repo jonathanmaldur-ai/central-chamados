@@ -62,4 +62,12 @@ if ! caddy validate --config "$CADDYFILE" --adapter caddyfile >/dev/null 2>&1; t
     exit 1
 fi
 systemctl reload caddy
+
+# Firewall: a 8443 (GLPI interno) só para a rede interna e as VPNs, nunca para a internet.
+if ufw status | grep -q '^Status: active'; then
+    ufw allow proto tcp from 192.168.0.0/24 to any port 8443 comment 'GLPI interno (rede)' >/dev/null
+    ufw allow proto tcp from 10.8.0.0/24 to any port 8443 comment 'GLPI interno (OpenVPN)' >/dev/null
+    ufw allow in on tailscale0 to any port 8443 proto tcp comment 'GLPI interno (Tailscale)' >/dev/null
+    echo "Firewall: 8443 liberada só para a rede interna e as VPNs."
+fi
 echo "Caddy atualizado: GLPI em https://$DOMINIO (público) e https://192.168.1.10:8443 (interno)."
