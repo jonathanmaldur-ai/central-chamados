@@ -25,6 +25,7 @@
 | 20 | Segurança do PHP e backup | PHP com a correção do PHP2Shell (CVE-2026-109618/109619, pacote Ubuntu 8.3.6-0ubuntu0.24.04.13) e atualizações de segurança automáticas. Pool do GLPI endurecido (`open_basedir`, sem funções de comando, sem URL como arquivo, só `.php`). Backup: banco completo por dia e anexos em espelho incremental, 30 dias, para não encher o HD de backup. Tudo em `scripts/servidor/endurecer-glpi.sh`. |
 | 21 | Senha do admin do GLPI | Escolhida pelo responsável, digitada no terminal (`scripts/servidor/definir-senha-glpi.sh`); o Claude não gera nem vê a senha. |
 | 22 | Acesso interno ao GLPI | `https://192.168.1.10:8443`, só rede interna e VPN (certificado interno do Caddy), para o TI e para testar antes de abrir as portas. A 8443 não é aberta no modem. Caddyfile gerado por `scripts/servidor/caddy-glpi.sh` (valida antes de aplicar). |
+| 23 | Login do administrador | O admin padrão `glpi` foi renomeado para **`doremi.ti`** (o `glpi` é o primeiro nome que um atacante tenta). Dados de demonstração do painel desabilitados. |
 
 ## Pendentes
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 # Define a senha de um usuário do GLPI pelo terminal (para quando o site ainda não abre, ou se perder a senha do admin).
-#   sudo bash ~/central-chamados/scripts/servidor/definir-senha-glpi.sh [usuário]    (padrão: glpi)
+#   sudo bash ~/central-chamados/scripts/servidor/definir-senha-glpi.sh [usuário]    (padrão: doremi.ti)
 # A senha é digitada por quem roda, não aparece na tela e não fica gravada em lugar nenhum além do GLPI (só o hash).
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "Rode com sudo."; exit 1; }
 
-usuario=${1:-glpi}
+usuario=${1:-doremi.ti}
 [[ $usuario =~ ^[A-Za-z0-9._@-]+$ ]] || { echo "Nome de usuário inválido: $usuario"; exit 1; }
 existe=$(mariadb -N glpi -e "SELECT COUNT(*) FROM glpi_users WHERE name = '$usuario'")
 [[ $existe == 1 ]] || { echo "Usuário $usuario não existe no GLPI."; exit 1; }

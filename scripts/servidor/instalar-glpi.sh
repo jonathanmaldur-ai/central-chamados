@@ -13,7 +13,7 @@
 #      chamados.example.com ganha certificado Let's Encrypt (emitido quando as portas 80/443
 #      forem abertas no modem, decisão 13).
 #   6. Tarefas automáticas do GLPI (cron); segurança do PHP e backup diário pelo endurecer-glpi.sh.
-#   7. Pede a senha do admin "glpi" (definir-senha-glpi.sh): quem escolhe é o responsável.
+#   7. Renomeia o admin "glpi" para "doremi.ti" e pede a senha dele (definir-senha-glpi.sh): quem escolhe é o responsável.
 #
 # A senha do banco é aleatória e fica só em /etc/glpi (arquivo do GLPI).
 set -euo pipefail
@@ -107,6 +107,8 @@ console system:check_requirements --no-interaction || true
 passo 'Usuários iniciais'
 mariadb glpi <<SQL
 UPDATE glpi_users SET is_active = 0 WHERE name IN ('tech', 'normal', 'post-only');
+-- "glpi" é o primeiro login que um atacante tenta (decisão 23).
+UPDATE glpi_users SET name = 'doremi.ti' WHERE name = 'glpi';
 UPDATE glpi_configs SET value = 'https://$DOMINIO' WHERE context = 'core' AND name = 'url_base';
 UPDATE glpi_configs SET value = 'America/Sao_Paulo' WHERE context = 'core' AND name = 'timezone';
 SQL
@@ -131,11 +133,11 @@ aqui=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 bash "$aqui/endurecer-glpi.sh"
 
 passo 'Senha do administrador'
-bash "$aqui/definir-senha-glpi.sh" glpi
+bash "$aqui/definir-senha-glpi.sh" doremi.ti
 
 echo
 echo "================================================================"
 echo " GLPI $versao instalado."
 echo " Endereço: https://$DOMINIO (funciona de fora depois de abrir as portas 80 e 443 no modem)"
-echo " Usuário administrador: glpi (senha escolhida por você agora há pouco)"
+echo " Usuário administrador: doremi.ti (senha escolhida por você agora há pouco)"
 echo "================================================================"
