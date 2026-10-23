@@ -588,7 +588,11 @@ def inicio_loja(glpi):
     if "form" in manter and formtiles.get(manter["form"]["items_id_tile"], {}).get("forms_forms_id") != form:
         print(f"  ~ atalho do formulário → \"{FORM_NOME}\"")
         if APLICAR:
-            glpi._pedir("PUT", f"/{q('FormTile')}/{manter['form']['items_id_tile']}", {"input": {"forms_forms_id": form}})
+            try:  # a API não tem permissão para trocar o formulário do quadro: só pela tela
+                glpi._pedir("PUT", f"/{q('FormTile')}/{manter['form']['items_id_tile']}", {"input": {"forms_forms_id": form}})
+            except SystemExit:
+                print("    a API não pode trocar o quadro: Administração → Entidades → Entidade raiz → "
+                      "Página inicial do Helpdesk → quadro do formulário → Abrir chamado")
     if "meus" in manter and paginas[manter["meus"]["items_id_tile"]]["title"] != "Meus chamados":
         print("  ~ atalho \"Meus chamados\"")
         if APLICAR:
