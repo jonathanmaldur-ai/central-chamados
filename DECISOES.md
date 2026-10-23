@@ -44,6 +44,7 @@
 | 39 | Proteção de login | O GLPI não bloqueia senha errada; o fail2ban lê as falhas em `/var/log/glpi/event.log` e bloqueia no UFW o IP com 5 falhas em 10 minutos, por 1 hora (dobrando para reincidentes, até 1 semana). Rede interna e VPNs nunca são bloqueadas. Script `scripts/servidor/protecao-login.sh`. |
 | 40 | Implantação gradual | Começa só na **Matriz** (piloto); depois as lojas, uma por vez, cada uma já com os ajustes do piloto. |
 | 41 | Tela inicial das lojas | Só dois atalhos, em português: **Abrir chamado** (o formulário) e **Meus chamados**. Saem os atalhos de exemplo do GLPI (catálogo, artigos de ajuda, reserva e os formulários de exemplo). |
+| 42 | Manuais | Manual do Administrador e Guia da Loja em `manuais/*.md` (texto) e `manuais/*.html` (visual Dorémi do SmartStock, para salvar em PDF), gerados por `scripts/gerar-manuais.py`. Cópias editáveis também no Claude Docs. Na cópia pública entram só os `.md`, filtrados (o nome da gestora vira "a gestora"). |
 
 ## Pendentes
 
