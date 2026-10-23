@@ -28,7 +28,6 @@ DADOS=/var/lib/glpi
 LOGS=/var/log/glpi
 PHPV=8.3
 SOCK=/run/php/php$PHPV-fpm-glpi.sock
-CADDYFILE=/etc/caddy/Caddyfile
 
 passo() { echo; echo "=== $1 ==="; }
 
@@ -113,42 +112,7 @@ UPDATE glpi_configs SET value = 'America/Sao_Paulo' WHERE context = 'core' AND n
 SQL
 
 passo 'Caddy'
-cp -a "$CADDYFILE" "$CADDYFILE.antes-do-glpi"
-cat > "$CADDYFILE" <<EOF
-# SmartStock AI: HTTPS na rede interna com certificado da autoridade local do Caddy.
-# Só atende a rede interna, a VPN (OpenVPN 10.8.0.0/24 e Tailscale 100.64.0.0/10 e fd7a:115c:a1e0::/48) e o próprio servidor;
-# quem vem da internet é recusado, mesmo digitando este nome (decisão 4 da Central de Chamados).
-https://smartstock.internal, https://192.168.1.10 {
-	tls internal
-	@fora not remote_ip 192.168.0.0/24 10.8.0.0/24 100.64.0.0/10 fd7a:115c:a1e0::/48 127.0.0.0/8 ::1
-	abort @fora
-	encode gzip
-	reverse_proxy 127.0.0.1:5080
-}
-
-# Central de Chamados (GLPI): único site aberto para a internet, com certificado Let's Encrypt automático.
-$DOMINIO {
-	root * $CODIGO/public
-	request_body {
-		max_size 25MB
-	}
-	encode gzip
-	php_fastcgi unix/$SOCK
-	file_server
-	header {
-		Strict-Transport-Security "max-age=31536000"
-		X-Content-Type-Options nosniff
-		Referrer-Policy same-origin
-		-Server
-	}
-}
-EOF
-if ! caddy validate --config "$CADDYFILE" --adapter caddyfile >/dev/null 2>&1; then
-    cp -a "$CADDYFILE.antes-do-glpi" "$CADDYFILE"
-    echo "Configuração do Caddy inválida: voltei a anterior. O SmartStock não foi afetado."
-    exit 1
-fi
-systemctl reload caddy
+bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/caddy-glpi.sh"
 
 passo 'Firewall'
 if ufw status | grep -q '^Status: active'; then

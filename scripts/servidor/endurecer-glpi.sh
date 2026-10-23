@@ -6,8 +6,7 @@
 #   1. Confere que o PHP tem a correção do PHP2Shell (CVE-2026-109618 e CVE-2026-109619).
 #   2. Pool "glpi" do PHP endurecido: só enxerga as pastas do GLPI (open_basedir), não roda comandos do
 #      sistema, não abre URLs como arquivo, só executa .php. Testa a configuração antes de reiniciar.
-#   3. Caddy: limite de 25 MB por envio no site do GLPI (validado antes de aplicar; se falhar, volta o anterior).
-#   4. Backup diário: banco completo por dia + anexos em espelho incremental, 30 dias.
+#   3. Backup diário: banco completo por dia + anexos em espelho incremental, 30 dias.
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "Rode com sudo."; exit 1; }
 
@@ -18,7 +17,6 @@ LOGS=/var/log/glpi
 PHPV=8.3
 SOCK=/run/php/php$PHPV-fpm-glpi.sock
 POOL=/etc/php/$PHPV/fpm/pool.d/glpi.conf
-CADDYFILE=/etc/caddy/Caddyfile
 
 passo() { echo; echo "=== $1 ==="; }
 
@@ -79,21 +77,6 @@ if ! php-fpm$PHPV -t 2>/dev/null; then
 fi
 systemctl restart php$PHPV-fpm
 echo "Pool glpi aplicado."
-
-passo 'Caddy (limite de envio)'
-if grep -q 'max_size 25MB' "$CADDYFILE"; then
-    echo "Já aplicado."
-else
-    cp -a "$CADDYFILE" "$CADDYFILE.anterior"
-    perl -0pi -e 's#(\troot \* \Q'"$CODIGO"'\E/public\n)#$1\trequest_body {\n\t\tmax_size 25MB\n\t}\n#' "$CADDYFILE"
-    if ! grep -q 'max_size 25MB' "$CADDYFILE" || ! caddy validate --config "$CADDYFILE" --adapter caddyfile >/dev/null 2>&1; then
-        cp -a "$CADDYFILE.anterior" "$CADDYFILE"
-        echo "Não consegui aplicar no Caddy: voltei a configuração anterior. O SmartStock não foi afetado."
-        exit 1
-    fi
-    systemctl reload caddy
-    echo "Limite de 25 MB aplicado."
-fi
 
 passo 'Backup diário'
 command -v rsync >/dev/null || apt-get install -y -q rsync
