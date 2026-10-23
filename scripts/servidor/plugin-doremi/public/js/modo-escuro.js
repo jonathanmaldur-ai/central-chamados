@@ -28,4 +28,16 @@ $(function () {
         menuUsuario.parentElement.insertBefore(botao, menuUsuario);
         menuUsuario.parentElement.classList.add('align-items-center');
     });
+
+    // O painel (dashboard) tem modo escuro próprio (classe "theme-dark"), com a versão escura de cada quadro.
+    // No modo escuro ele liga junto; o painel chega depois da página, por isso o observador.
+    if (escuro) {
+        const escurecerPaineis = function () {
+            document.querySelectorAll('.dashboard:not(.theme-dark)').forEach(function (painel) {
+                painel.classList.add('theme-dark');
+            });
+        };
+        escurecerPaineis();
+        new MutationObserver(escurecerPaineis).observe(document.body, { childList: true, subtree: true });
+    }
 });
