@@ -416,6 +416,14 @@ def perfis(glpi):
             print("  + Observador: ver o painel")
             if APLICAR:
                 glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": int(direito["rights"]) | 1}})
+    # Quem atende não vê as avaliações (decisão 44): o Técnico de TI fica sem Estatísticas (onde está a média de
+    # satisfação); a nota no fim do chamado o plugin "doremi" esconde para esse perfil.
+    tecnico = next(p["id"] for p in todos if p["name"] == PERFIS["Technician"])
+    for direito in glpi._pedir("GET", f"/Profile/{tecnico}/ProfileRight?range=0-999"):
+        if direito["name"] == "statistic" and int(direito["rights"]) != 0:
+            print("  - Técnico de TI: estatísticas")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": 0}})
 
 
 # Formulário de abertura das lojas (decisões 30, 31 e 34): config/campos.tsv traduzido para o formulário do GLPI 11.
@@ -585,14 +593,17 @@ def inicio_loja(glpi):
             print(f"  - atalho {i['itemtype_tile'].split(chr(92))[-1]} {i['items_id_tile']}")
             if APLICAR:
                 glpi._pedir("DELETE", f"/{q('Item_Tile')}/{i['id']}?force_purge=1")
-    if "form" in manter and formtiles.get(manter["form"]["items_id_tile"], {}).get("forms_forms_id") != form:
-        print(f"  ~ atalho do formulário → \"{FORM_NOME}\"")
+    if formtiles.get(manter.get("form", {}).get("items_id_tile"), {}).get("forms_forms_id") != form:
+        # Trocar o formulário de um quadro existente a API não deixa; criar um quadro novo na entidade raiz deixa
+        # (ele já entra ligado à tela), e o quadro antigo sai.
+        print(f"  + quadro do formulário \"{FORM_NOME}\"")
         if APLICAR:
-            try:  # a API não tem permissão para trocar o formulário do quadro: só pela tela
-                glpi._pedir("PUT", f"/{q('FormTile')}/{manter['form']['items_id_tile']}", {"input": {"forms_forms_id": form}})
-            except SystemExit:
-                print("    a API não pode trocar o quadro: Administração → Entidades → Entidade raiz → "
-                      "Página inicial do Helpdesk → quadro do formulário → Abrir chamado")
+            glpi.criar(q("FormTile"), {"forms_forms_id": form, "_itemtype_item": "Entity", "_items_id_item": 0})
+            if "form" in manter:
+                glpi._pedir("DELETE", f"/{q('Item_Tile')}/{manter['form']['id']}?force_purge=1")
+            ligados = [i for i in glpi._pedir("GET", f"/{q('Item_Tile')}?range=0-50")
+                       if i["itemtype_item"] == "Entity" and i["items_id_item"] == 0]
+            manter["form"] = next(i for i in ligados if i["itemtype_tile"].endswith("FormTile"))
     if "meus" in manter and paginas[manter["meus"]["items_id_tile"]]["title"] != "Meus chamados":
         print("  ~ atalho \"Meus chamados\"")
         if APLICAR:

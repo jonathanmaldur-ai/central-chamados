@@ -1,0 +1,5 @@
+/* Perfil Técnico de TI: a avaliação da loja (nota e comentário) não aparece no fim do chamado (decisão 44).
+   As respostas da pesquisa são só da Gestão; quem atende não deve ver a própria nota. */
+form[data-testid="survey"] {
+    display: none !important;
+}

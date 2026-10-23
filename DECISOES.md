@@ -46,6 +46,7 @@
 | 41 | Tela inicial das lojas | Só dois atalhos, em português: **Abrir chamado** (o formulário) e **Meus chamados**. Saem os atalhos de exemplo do GLPI (catálogo, artigos de ajuda, reserva e os formulários de exemplo). |
 | 42 | Manuais | Manual do Administrador e Guia da Loja em `manuais/*.md` (texto) e `manuais/*.html` (visual Dorémi do SmartStock, para salvar em PDF), gerados por `scripts/gerar-manuais.py`. Cópias editáveis também no Claude Docs. Na cópia pública entram só os `.md`, filtrados (o nome da gestora vira "a gestora"). |
 | 43 | Pesquisa de satisfação | Criada quando o chamado **fecha** (a loja aceita a solução ou ele fecha sozinho depois de 2 dias). O convite vai só para quem abriu o chamado (a loja avalia); as respostas vão só para o perfil **Gestão (aprovação)**. O TI (administrador e técnico) não recebe nenhum dos dois por e-mail. |
+| 44 | Quem atende não vê as avaliações | O TI atende com uma conta de perfil **Técnico de TI** (criada pelo responsável, e-mail ti@); o `doremi.ti` fica só para configuração. O Técnico de TI fica sem Estatísticas e o plugin "doremi" esconde a avaliação no fim do chamado para esse perfil. As respostas continuam só com a Gestão (decisão 43). O administrador geral ainda consegue ver, por ser administrador. Tela inicial da loja com o quadro "Abrir chamado" ligado ao formulário certo. |
 
 ## Pendentes
 
