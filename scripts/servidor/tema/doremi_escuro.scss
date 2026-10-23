@@ -1,0 +1,78 @@
+/* theme-name: Dorémi escuro */
+// Modo escuro da Central de Chamados com os tokens escuros do SmartStock AI.
+// Modelo: o tema-doremi.sh troca __LOGO__ e __ICONE__ pelas imagens em base64 e grava em /var/lib/glpi/_themes.
+// Logo sobre uma "caixa" clara, como orienta o manual da marca para fundos escuros (igual ao SmartStock).
+
+$is-dark: true;
+
+:root[data-glpi-theme="doremi_escuro"] {
+    --tblr-dark: #0e1422;
+    --tblr-light: #e7ecf5;
+    --tblr-body-bg: #0e1422;
+    --tblr-body-color: #e7ecf5;
+    --tblr-body-color-rgb: 231, 236, 245;
+    --tblr-bg-surface: #161e2f;
+    --tblr-border-color: #2a3550;
+    --tblr-muted: #a3aec4;
+    --tblr-primary-rgb: 90, 174, 232;
+    --tblr-primary-fg: #0b1320;
+    --tblr-secondary: #8591aa;
+    --tblr-secondary-fg: #e7ecf5;
+    --tblr-link-color-rgb: 90, 174, 232;
+    --tblr-link-hover-color-rgb: 123, 191, 238;
+    --tblr-badge-bg: #12253a;
+    --tblr-badge-color: #9ccff3;
+
+    --glpi-mainmenu-bg: #161e2f;
+    --glpi-mainmenu-fg: #e7ecf5;
+    --glpi-mainmenu-fg-muted: #a3aec4;
+    --glpi-mainmenu-active-bg: #12253a;
+    --glpi-helpdesk-header: #12253a;
+    --glpi-helpdesk-tiles-section-bg: #161e2f;
+    --glpi-helpdesk-tabs-section-bg: #0e1422;
+    --glpi-tabs-bg: #161e2f;
+    --glpi-tabs-active-bg: #1e2840;
+
+    --glpi-palette-color-1: #161e2f;
+    --glpi-palette-color-2: #5aaee8;
+    --glpi-palette-color-3: #8fa3de;
+    --glpi-palette-color-4: #12253a;
+
+    --glpi-illustrations-gradient-1: #12253a;
+    --glpi-illustrations-gradient-2: #1273ba;
+    --glpi-illustrations-gradient-3: #5aaee8;
+
+    --glpi-logo: url("data:image/png;base64,__LOGO__");
+    --glpi-logo-light: var(--glpi-logo);
+    --glpi-logo-dark: var(--glpi-logo);
+    --glpi-logo-dark-login: var(--glpi-logo);
+    --glpi-logo-light-login: var(--glpi-logo);
+    --glpi-logo-reduced: url("data:image/png;base64,__ICONE__");
+    --glpi-logo-light-reduced: var(--glpi-logo-reduced);
+    --glpi-logo-dark-reduced: var(--glpi-logo-reduced);
+
+    .page .glpi-logo {
+        background-size: contain !important;
+        background-position: center;
+        background-origin: content-box;
+        background-color: #ffffff;
+        border-radius: 6px;
+        padding: 4px 8px;
+        width: 160px;
+        height: 59px;
+    }
+
+    .page-anonymous .glpi-logo {
+        width: 260px;
+        height: 96px;
+        object-fit: contain;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+
+    .navbar-vertical,
+    aside.navbar {
+        border-right: 1px solid #2a3550;
+    }
+}
