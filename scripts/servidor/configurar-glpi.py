@@ -329,17 +329,24 @@ def tarefas(glpi):
                 glpi._pedir("PUT", f"/CronTask/{t['id']}", {"input": {"mode": 2}})
 
 
-def painel(glpi):
-    """Tela principal com o painel de Assistência (só chamados), não o geral com inventário e fornecedores."""
-    print("Painel da tela principal:")
-    atual = [c["value"] for c in glpi._pedir("GET", "/Config?range=0-3000") if c["name"] == "default_dashboard_central"]
-    if atual != ["assistance"]:
-        print("  + painel padrão: Assistência")
-        if APLICAR:
-            try:  # o GLPI grava o valor, mas responde erro porque a linha principal da configuração não muda
-                glpi._pedir("PUT", "/Config/1", {"input": {"id": 1, "default_dashboard_central": "assistance"}})
-            except SystemExit:
-                pass
+CONFIG_GERAL = {
+    "default_dashboard_central": ("assistance", "tela principal com o painel de Assistência (só chamados)"),
+    "names_format": ("1", "nomes como Nome Sobrenome"),
+}
+
+
+def config_geral(glpi):
+    """Configurações gerais do GLPI (Configurar → Geral)."""
+    print("Configurações gerais:")
+    atuais = {c["name"]: c["value"] for c in glpi._pedir("GET", "/Config?range=0-3000") if c["context"] == "core"}
+    for nome, (valor, rotulo) in CONFIG_GERAL.items():
+        if atuais.get(nome) != valor:
+            print(f"  ~ {rotulo}")
+            if APLICAR:
+                try:  # o GLPI grava o valor, mas responde erro porque a linha principal da configuração não muda
+                    glpi._pedir("PUT", "/Config/1", {"input": {"id": 1, nome: valor}})
+                except SystemExit:
+                    pass
 
 
 # Perfis do GLPI com nomes em português, pensados nos cargos da Dorémi (decisão 37). Chave: nome original do GLPI.
@@ -539,7 +546,7 @@ def main():
         perfis(glpi)
         entidade(glpi)
         tarefas(glpi)
-        painel(glpi)
+        config_geral(glpi)
         formulario(glpi)
     finally:
         glpi.sair()
