@@ -256,6 +256,30 @@ def regras(glpi, prazos):
     # A unidade vem do login da loja (cada login tem a sua Localização): a loja não precisa escolher.
     regra(glpi, regras_atuais, crit, acts, "Unidade do solicitante", "AND", ao_abrir,
           [("_locations_id_of_requester", 8, 1)], [("fromuser", "locations_id", 1)])
+    # Problemas com Aprovação = Sim vão para aprovação do grupo "Aprovadores" (qualquer membro aprova).
+    grupos = {g["name"]: g["id"] for g in glpi.listar("Group")}
+    aprovadores = garantir(glpi, "Group", grupos, "Aprovadores",
+                           {"name": "Aprovadores", "entities_id": 0, "is_recursive": 1, "is_requester": 1,
+                            "is_assign": 0, "comment": "Gestão: aprova equipamentos novos, trocas e melhorias (decisão 35)."},
+                           "Grupo Aprovadores")
+    ids = [cats.get(caminho(l)) for l in linhas if l.get("Aprovação") == "Sim"]
+    if aprovadores is None:
+        print("  + Regra [Central] Aprovação da gestão")
+    else:
+        regra(glpi, regras_atuais, crit, acts, "Aprovação da gestão", "OR", ao_abrir,
+              [("itilcategories_id", 0, i) for i in ids if i],
+              [("add_validation", "groups_id_validate_any", aprovadores)])
+
+
+def perfis(glpi):
+    """O perfil Observador (vê todos os chamados e aprova, sem alterar) passa a ver também o painel (dashboard)."""
+    print("Perfis:")
+    obs = next(p["id"] for p in glpi.listar("Profile") if p["name"] == "Observer")
+    for direito in glpi._pedir("GET", f"/Profile/{obs}/ProfileRight?range=0-999"):
+        if direito["name"] == "dashboard" and not int(direito["rights"]) & 1:
+            print("  + Observador: ver o painel")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": int(direito["rights"]) | 1}})
 
 
 # Formulário de abertura das lojas (decisões 30, 31 e 34): config/campos.tsv traduzido para o formulário do GLPI 11.
@@ -407,6 +431,7 @@ def main():
         categorias(glpi)
         cal = calendario(glpi)
         regras(glpi, slas(glpi, cal))
+        perfis(glpi)
         formulario(glpi)
     finally:
         glpi.sair()
