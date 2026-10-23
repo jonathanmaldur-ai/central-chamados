@@ -419,11 +419,17 @@ def perfis(glpi):
     # Quem atende não vê as avaliações (decisão 44): o Técnico de TI fica sem Estatísticas (onde está a média de
     # satisfação); a nota no fim do chamado o plugin "doremi" esconde para esse perfil.
     tecnico = next(p["id"] for p in todos if p["name"] == PERFIS["Technician"])
+    mudar_prioridade = 65536  # Ticket::CHANGEPRIORITY: o TI corrige um "Crítico" que não é (decisão 36)
     for direito in glpi._pedir("GET", f"/Profile/{tecnico}/ProfileRight?range=0-999"):
         if direito["name"] == "statistic" and int(direito["rights"]) != 0:
             print("  - Técnico de TI: estatísticas")
             if APLICAR:
                 glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": 0}})
+        if direito["name"] == "ticket" and not int(direito["rights"]) & mudar_prioridade:
+            print("  + Técnico de TI: mudar a prioridade do chamado")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}",
+                            {"input": {"rights": int(direito["rights"]) | mudar_prioridade}})
 
 
 # Formulário de abertura das lojas (decisões 30, 31 e 34): config/campos.tsv traduzido para o formulário do GLPI 11.
