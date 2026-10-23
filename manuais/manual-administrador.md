@@ -2,7 +2,7 @@
 
 ## 1. Acesso
 
-Você administra a Central com o usuário **doremi.ti** (perfil Administrador geral), pelo endereço público ou pelo interno.
+Você administra a Central com o usuário **doremi.ti** (perfil Administrador geral) e atende os chamados com a sua **conta de técnico** (perfil Técnico de TI). A conta de técnico não mostra as avaliações das lojas, que são só da Gestão; o doremi.ti vê tudo, então use-o só para configurar.
 
 | Endereço | Quando usar |
 | --- | --- |
