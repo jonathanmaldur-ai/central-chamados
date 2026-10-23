@@ -22,6 +22,7 @@ LOGO = RAIZ / "scripts/servidor/tema/doremi-brinquedos.png"
 MANUAIS = {
     "manual-administrador.md": ("Manual do Administrador", "Para o TI: administração completa da Central"),
     "guia-da-loja.md": ("Guia da Loja", "Do primeiro acesso à avaliação do chamado"),
+    "manual-gestao.md": ("Manual da Gestão", "Aprovações, acompanhamento e avaliações"),
 }
 
 
