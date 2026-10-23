@@ -42,7 +42,8 @@
 | 37 | Perfis em português e satisfação | Perfis renomeados: Loja / Solicitante (lojas e CD), Gestão (aprovação) (chefe), Técnico de TI, Supervisor de TI, Administrador geral (doremi.ti), Administrador, Atendente (1º nível), Somente leitura. O rótulo "Perfil" fica como está (mudar exigiria tradução própria do GLPI inteiro). Pesquisa de satisfação de 1 a 5 em todo chamado solucionado; fechamento automático 2 dias (48 h) depois de solucionado. |
 | 38 | Portas abertas | Em 23/10/2026: TCP 80 e 443 do modem → 192.168.1.10, depois de conferido o isolamento (decisão 13). O modem só salvou depois de apagar as duas regras UDP que se sobrepunham (28069 → 41641 para 192.168.0.15 e 34353 → 41641 para 192.168.0.25, provavelmente Tailscale, que funciona sem elas) e só aplicou depois de reiniciado. Certificado Let's Encrypt emitido às 14:52; login público respondendo; SmartStock segue recusando quem vem de fora. |
 | 39 | Proteção de login | O GLPI não bloqueia senha errada; o fail2ban lê as falhas em `/var/log/glpi/event.log` e bloqueia no UFW o IP com 5 falhas em 10 minutos, por 1 hora (dobrando para reincidentes, até 1 semana). Rede interna e VPNs nunca são bloqueadas. Script `scripts/servidor/protecao-login.sh`. |
+| 40 | Implantação gradual | Começa só na **Matriz** (piloto); depois as lojas, uma por vez, cada uma já com os ajustes do piloto. |
 
 ## Pendentes
 
-- E-mail da gerência de cada loja e lista de quem da Diretoria e do Administrativo terá login.
+- Piloto na Matriz: lista de quem abre chamado lá (nome, e-mail, setor). Depois, loja por loja: e-mail da gerência.
