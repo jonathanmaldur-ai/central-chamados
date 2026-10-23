@@ -32,6 +32,7 @@
 | 27 | Prioridades e status | Prioridades Baixa, Normal, Alta e Crítica (as do SLA; "Normal" = Média). Status do próprio GLPI: Novo (aberto/em triagem), Em atendimento, **Pendente com motivo** (aguardando solicitante, fornecedor ou peça; pausa o SLA), Solucionado, Fechado. Cancelado = fechado com solução do tipo "Cancelado". |
 | 28 | CPF | Não é pedido nos chamados em geral. É **obrigatório só na criação de usuário do PDV e do Administrativo**, porque o sistema de vendas exige no cadastro (finalidade definida, LGPD). O chamado só é visto pelo solicitante e pelo TI. |
 | 29 | Campos de todo chamado | Solicitante, unidade, setor, categoria, problema, sistema ou equipamento, descrição, anexos e "impede de vender ou trabalhar?"; o GLPI registra número, prioridade, status, responsável, datas e solução. |
+| 30 | Perguntas por tipo de chamado | Prioridades padrão sugeridas aprovadas (venda parada = Alta; ponto que impede o registro = Alta; ameaça grave de segurança = Crítica; pedidos e melhorias = Baixa; resto Normal). **Frente de Caixa:** número exato do caixa, obrigatório. **Impressoras:** modelo e mensagem ou problema de fato, obrigatórios. **Criação de usuário:** nome completo, função, unidade, sistema e tipo de acesso; CPF só no PDV e no Administrativo. Tudo em `config/campos.tsv`. |
 
 ## Pendentes
 

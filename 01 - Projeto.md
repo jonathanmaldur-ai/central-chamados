@@ -82,7 +82,7 @@ Estrutura definida pelo responsável em 23/10/2026 (decisões 26 a 29): **14 cat
 
 - A **unidade** (loja ou CD) é um campo separado da categoria.
 - No formulário, a loja responde: *"Isso está impedindo de vender ou de trabalhar?"*. Se sim, o chamado vira **Crítico**. O TI pode mudar a prioridade a qualquer momento, e a mudança fica registrada.
-- Cada tipo de chamado pode ter perguntas próprias (por exemplo, qual caixa, qual maquininha). Os campos específicos estão em definição.
+- Perguntas de todos os chamados e as de cada tipo (número do caixa na Frente de Caixa, modelo e mensagem nas Impressoras, dados do colaborador na criação de usuário) ficam em [`config/campos.tsv`](config/campos.tsv) (decisão 30).
 
 ---
 
