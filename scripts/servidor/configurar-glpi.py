@@ -338,7 +338,7 @@ CONFIG_GERAL = {
 def config_geral(glpi):
     """Configurações gerais do GLPI (Configurar → Geral)."""
     print("Configurações gerais:")
-    atuais = {c["name"]: c["value"] for c in glpi._pedir("GET", "/Config?range=0-3000") if c["context"] == "core"}
+    atuais = {c["name"]: c.get("value") for c in glpi._pedir("GET", "/Config?range=0-3000") if c.get("context") == "core"}
     for nome, (valor, rotulo) in CONFIG_GERAL.items():
         if atuais.get(nome) != valor:
             print(f"  ~ {rotulo}")
