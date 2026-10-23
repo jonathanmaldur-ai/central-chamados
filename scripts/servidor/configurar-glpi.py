@@ -271,6 +271,17 @@ def regras(glpi, prazos):
               [("add_validation", "groups_id_validate_any", aprovadores)])
 
 
+def tarefas(glpi):
+    """Tarefas automáticas ativas em modo CLI: o cron do servidor roda a cada minuto (e-mails, SLA, fechamento
+    automático), mesmo sem ninguém navegando no GLPI. No modo interno elas só rodam com alguém usando a tela."""
+    print("Tarefas automáticas:")
+    for t in glpi._pedir("GET", "/CronTask?range=0-500"):
+        if t["state"] == 1 and t["mode"] == 1:
+            print(f"  + {t['name']}: modo CLI")
+            if APLICAR:
+                glpi._pedir("PUT", f"/CronTask/{t['id']}", {"input": {"mode": 2}})
+
+
 def perfis(glpi):
     """O perfil Observador (vê todos os chamados e aprova, sem alterar) passa a ver também o painel (dashboard)."""
     print("Perfis:")
@@ -432,6 +443,7 @@ def main():
         cal = calendario(glpi)
         regras(glpi, slas(glpi, cal))
         perfis(glpi)
+        tarefas(glpi)
         formulario(glpi)
     finally:
         glpi.sair()
