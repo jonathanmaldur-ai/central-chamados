@@ -53,6 +53,7 @@ trap 'rm -rf "$tmp"' EXIT
 curl -fsSL "$url" -o "$tmp/glpi.tgz"
 echo "$digest  $tmp/glpi.tgz" | sha256sum -c -
 echo "Versão: $versao"
+install -d -m 755 /var/www
 tar -xzf "$tmp/glpi.tgz" -C /var/www
 
 passo 'Pastas fora da área pública'
@@ -128,11 +129,11 @@ passo 'Caddy'
 cp -a "$CADDYFILE" "$CADDYFILE.antes-do-glpi"
 cat > "$CADDYFILE" <<EOF
 # SmartStock AI: HTTPS na rede interna com certificado da autoridade local do Caddy.
-# Só atende a rede interna, a VPN (OpenVPN 10.8.0.0/24 e Tailscale 100.64.0.0/10) e o próprio servidor;
+# Só atende a rede interna, a VPN (OpenVPN 10.8.0.0/24 e Tailscale 100.64.0.0/10 e fd7a:115c:a1e0::/48) e o próprio servidor;
 # quem vem da internet é recusado, mesmo digitando este nome (decisão 4 da Central de Chamados).
 https://smartstock.internal, https://192.168.1.10 {
 	tls internal
-	@fora not remote_ip 192.168.0.0/24 10.8.0.0/24 100.64.0.0/10 127.0.0.0/8
+	@fora not remote_ip 192.168.0.0/24 10.8.0.0/24 100.64.0.0/10 fd7a:115c:a1e0::/48 127.0.0.0/8 ::1
 	abort @fora
 	encode gzip
 	reverse_proxy 127.0.0.1:5080
