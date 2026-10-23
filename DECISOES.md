@@ -26,6 +26,7 @@
 | 21 | Senha do admin do GLPI | Escolhida pelo responsável, digitada no terminal (`scripts/servidor/definir-senha-glpi.sh`); o Claude não gera nem vê a senha. |
 | 22 | Acesso interno ao GLPI | `https://192.168.1.10:8443`, só rede interna e VPN (certificado interno do Caddy), para o TI e para testar antes de abrir as portas. A 8443 não é aberta no modem. Caddyfile gerado por `scripts/servidor/caddy-glpi.sh` (valida antes de aplicar). |
 | 23 | Login do administrador | O admin padrão `glpi` foi renomeado para **`doremi.ti`** (o `glpi` é o primeiro nome que um atacante tenta). Dados de demonstração do painel desabilitados. |
+| 24 | Visual da Dorémi | Tema "Dorémi" do GLPI com os tokens do SmartStock (azul `#1273ba`, menu lateral branco, item ativo `#e7f1fa`) e o logo Dorémi no menu e no login, sem alterar proporção nem cores. Fica em `/var/lib/glpi/_themes` (sobrevive às atualizações do GLPI), instalado por `scripts/servidor/tema-doremi.sh` e escolhido como paleta padrão. |
 
 ## Pendentes
 

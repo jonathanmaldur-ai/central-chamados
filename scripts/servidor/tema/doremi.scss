@@ -1,0 +1,65 @@
+/* theme-name: Dorémi */
+// Tema da Central de Chamados com a identidade do SmartStock AI (mesmos tokens de cor e o logo Dorémi).
+// Modelo: o tema-doremi.sh troca __LOGO__ e __ICONE__ pelas imagens em base64 e grava em /var/lib/glpi/_themes.
+// Logo: proporção e cores nunca são alteradas (manual da marca).
+
+:root[data-glpi-theme="doremi"] {
+    // Azul Dorémi (--ss-primary do SmartStock) nos botões, links e destaques.
+    --tblr-primary-rgb: 18, 115, 186;
+    --tblr-primary-fg: #ffffff;
+    --tblr-link-color-rgb: 18, 115, 186;
+    --tblr-secondary: #5a6478;
+    --tblr-body-bg: #f5f7fb;
+    --tblr-body-color: #1b2438;
+    --tblr-border-color: #dce2ec;
+    --tblr-badge-bg: #e7f1fa;
+    --tblr-badge-color: #0c4c7a;
+
+    // Menu lateral branco, como o do SmartStock; item ativo em azul-claro.
+    --glpi-mainmenu-bg: #ffffff;
+    --glpi-mainmenu-fg: #1b2438;
+    --glpi-mainmenu-fg-muted: #5a6478;
+    --glpi-mainmenu-active-bg: #e7f1fa;
+    --glpi-helpdesk-header: #e7f1fa;
+
+    // Amostra mostrada na escolha de paleta.
+    --glpi-palette-color-1: #ffffff;
+    --glpi-palette-color-2: #1273ba;
+    --glpi-palette-color-3: #3b55a0;
+    --glpi-palette-color-4: #e7f1fa;
+
+    // Ilustrações do portal das lojas.
+    --glpi-illustrations-gradient-1: #e7f1fa;
+    --glpi-illustrations-gradient-2: #8fc3ea;
+    --glpi-illustrations-gradient-3: #1273ba;
+
+    // Logo Dorémi no lugar do GLPI (menu, menu recolhido e tela de login).
+    --glpi-logo: url("data:image/png;base64,__LOGO__");
+    --glpi-logo-light: var(--glpi-logo);
+    --glpi-logo-dark: var(--glpi-logo);
+    --glpi-logo-dark-login: var(--glpi-logo);
+    --glpi-logo-light-login: var(--glpi-logo);
+    --glpi-logo-reduced: url("data:image/png;base64,__ICONE__");
+    --glpi-logo-light-reduced: var(--glpi-logo-reduced);
+    --glpi-logo-dark-reduced: var(--glpi-logo-reduced);
+
+    // O logo original tem 480 x 177: só muda o tamanho, nunca a proporção.
+    .page .glpi-logo {
+        background-size: contain !important;
+        background-position: center;
+        width: 160px;
+        height: 59px;
+    }
+
+    .page-anonymous .glpi-logo {
+        width: 260px;
+        height: 96px;
+        object-fit: contain;
+    }
+
+    // Menu claro: a borda separa o menu do conteúdo, como no SmartStock.
+    .navbar-vertical,
+    aside.navbar {
+        border-right: 1px solid #dce2ec;
+    }
+}
