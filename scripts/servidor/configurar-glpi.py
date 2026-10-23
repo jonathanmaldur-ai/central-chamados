@@ -253,6 +253,149 @@ def regras(glpi, prazos):
             continue
         regra(glpi, regras_atuais, crit, acts, f"SLA {nome_pri}", "AND", ao_abrir_e_atualizar,
               [("priority", 0, valor)], [("assign", "slas_id_tto", tto), ("assign", "slas_id_ttr", ttr)])
+    # A unidade vem do login da loja (cada login tem a sua Localização): a loja não precisa escolher.
+    regra(glpi, regras_atuais, crit, acts, "Unidade do solicitante", "AND", ao_abrir,
+          [("_locations_id_of_requester", 8, 1)], [("fromuser", "locations_id", 1)])
+
+
+# Formulário de abertura das lojas (decisões 30, 31 e 34): config/campos.tsv traduzido para o formulário do GLPI 11.
+FORM_NOME = "Abrir chamado"
+F = "Glpi\\Form\\"
+TIPOS = {
+    "curto": F + "QuestionType\\QuestionTypeShortText",
+    "longo": F + "QuestionType\\QuestionTypeLongText",
+    "numero": F + "QuestionType\\QuestionTypeNumber",
+    "lista": F + "QuestionType\\QuestionTypeDropdown",
+    "opcoes": F + "QuestionType\\QuestionTypeRadio",
+    "categoria": F + "QuestionType\\QuestionTypeItemDropdown",
+    "anexo": F + "QuestionType\\QuestionTypeFile",
+}
+
+
+def uid(texto):
+    """uuid estável a partir de um texto (rodar de novo gera os mesmos)."""
+    import uuid
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, "central-chamados/" + texto))
+
+
+def tag_resposta(qid, nome):
+    return ('<span data-form-tag="true" data-form-tag-value="%d" data-form-tag-provider="Glpi\\Form\\Tag\\AnswerTagProvider" '
+            'class="border-teal border-start border-3 bg-dark-lt">#Resposta: %s</span>' % (qid, nome))
+
+
+def formulario(glpi):
+    """Cria o formulário "Abrir chamado" se ainda não existir. Para mudar depois: apagar na tela e rodar de novo."""
+    import urllib.parse
+    print("Formulário das lojas:")
+    tipo = lambda t: urllib.parse.quote(F + t, safe="")
+    if any(f["name"] == FORM_NOME for f in glpi._pedir("GET", f"/{tipo('Form')}?range=0-200")):
+        print(f"  já existe \"{FORM_NOME}\" (para recriar com mudanças: apagar na tela e rodar de novo).")
+        return
+    linhas = ler_tsv("categorias.tsv")
+    grupos = list(dict.fromkeys(l["Categoria"] + (" > " + l["Grupo"] if l["Grupo"] else "") for l in linhas))
+    if not APLICAR:
+        print(f"  + Formulário \"{FORM_NOME}\": {len(grupos)} grupos, {len(grupos)} listas de problema e as perguntas de config/campos.tsv")
+        return
+    cats = {c["completename"]: c["id"] for c in glpi.listar("ITILCategory")}
+
+    form = glpi.criar(tipo("Form"), {
+        "name": FORM_NOME, "entities_id": 0, "is_recursive": 1, "is_active": 1, "is_draft": 0, "is_pinned": 1,
+        "header": "<p>Conte o que aconteceu. O TI recebe na hora e você acompanha por aqui.</p>",
+        "description": "Problemas e pedidos de TI das lojas e do CD.",
+        # Sem a seção e o destino padrão do GLPI: o destino padrão abriria um segundo chamado.
+        "_init_sections": False, "_init_destinations": False,
+    })
+    sec_uuid = uid("secao-principal")
+    sec = glpi.criar(tipo("Section"), {"forms_forms_id": form, "uuid": sec_uuid, "name": "Chamado", "rank": 0})
+    rank = [0]
+    ids = {}
+
+    def pergunta(chave, nome, t, obrig=True, extra=None, descricao="", condicoes=None, logica="and"):
+        dados = {"forms_sections_id": sec, "forms_sections_uuid": sec_uuid, "uuid": uid("q-" + chave), "name": nome,
+                 "type": TIPOS[t], "is_mandatory": int(obrig), "vertical_rank": rank[0], "description": descricao,
+                 "extra_data": json.dumps(extra) if extra is not None else None,
+                 "visibility_strategy": "visible_if" if condicoes else "",
+                 "conditions": json.dumps([{**c, "logic_operator": logica} for c in condicoes] if condicoes else [])}
+        rank[0] += 1
+        ids[chave] = glpi.criar(tipo("Question"), dados)
+        return ids[chave]
+
+    def se(chave, valor, op="equals"):
+        return {"item": "question-" + uid("q-" + chave), "item_uuid": uid("q-" + chave), "item_type": "question",
+                "value_operator": op, "value": valor}
+
+    def lista(opcoes):
+        return {"options": {uid("op-" + o): o for o in opcoes}, "is_multiple_dropdown": False}
+
+    pergunta("quem", "Quem está abrindo o chamado?", "curto")
+    pergunta("setor", "Setor", "lista", extra=lista(["Frente de caixa", "Estoque", "Gerência", "Administrativo",
+                                                     "Diretoria", "E-commerce", "CD"]))
+    pergunta("grupo", "Qual o problema?", "lista", extra=lista(grupos),
+             descricao="Digite para pesquisar: caixa, TEF, impressora, internet, senha…")
+    for g in grupos:
+        pergunta("problema-" + g, "Qual problema exatamente?", "categoria",
+                 extra={"itemtype": "ITILCategory", "categories_filter": ["request", "incident", "change", "problem"],
+                        "root_items_id": cats[g], "subtree_depth": 1, "selectable_tree_root": False},
+                 condicoes=[se("grupo", uid("op-" + g))])
+
+    pdv = [g for g in grupos if g.startswith("Frente de Caixa")]
+    troca = next(g for g in grupos if "Troca e movimentação" in g)
+    impressoras = [g for g in grupos if g.startswith("Impressoras")]
+    criacao_grupo = "Acessos e Usuários > Criação e alteração de usuários"
+    criacao = [p for p in ("Criação de usuário do Windows", "Criação de usuário de e-mail",
+                           "Criação de usuário do PDV", "Criação de usuário do Administrativo")]
+    com_cpf = criacao[2:]
+
+    def problema_e(nome):
+        return se("problema-" + criacao_grupo, {"itemtype": "ITILCategory", "items_id": cats[criacao_grupo + " > " + nome]})
+
+    pergunta("caixa", "Qual caixa exatamente? (número do caixa)", "numero",
+             condicoes=[se("grupo", uid("op-" + g)) for g in pdv], logica="or")
+    pergunta("adquirente", "Adquirente", "lista",
+             extra=lista(["Cielo", "Stone", "Rede", "Getnet", "PagBank", "Outra"]), condicoes=[se("grupo", uid("op-" + troca))])
+    pergunta("serie", "Número de série do equipamento", "curto", condicoes=[se("grupo", uid("op-" + troca))],
+             descricao="O do equipamento com defeito, devolvido ou transferido. Pedido de equipamento novo: escreva \"novo\".")
+    pergunta("modelo", "Modelo da impressora", "curto",
+             condicoes=[se("grupo", uid("op-" + g)) for g in impressoras], logica="or")
+    pergunta("mensagem", "Aparece alguma mensagem? Qual o problema de fato?", "longo",
+             condicoes=[se("grupo", uid("op-" + g)) for g in impressoras], logica="or",
+             descricao="Copie a mensagem como aparece, ou conte o que a impressora faz.")
+    for chave, nome in (("cnome", "Nome completo do colaborador"), ("cfuncao", "Função ou cargo"),
+                        ("cunidade", "Unidade do colaborador"), ("cacesso", "Tipo de acesso")):
+        pergunta(chave, nome, "curto", condicoes=[problema_e(p) for p in criacao], logica="or")
+    pergunta("cpf", "CPF do colaborador (só os 11 números)", "curto", condicoes=[problema_e(p) for p in com_cpf],
+             logica="or", descricao="Exigido pelo cadastro no sistema de vendas (decisão 28).")
+    pergunta("descricao", "Descreva o que aconteceu", "longo",
+             descricao="O que você estava fazendo, o que apareceu na tela, desde quando acontece.")
+    pergunta("anexo", "Foto ou print", "anexo", obrig=False)
+    impede = lista(["Sim, está parado", "Não, dá para continuar"])
+    pergunta("impede", "Isso está impedindo de vender ou de trabalhar?", "opcoes", extra={"options": impede["options"]})
+
+    # Dois destinos: o chamado nasce com urgência Muito alta (5) se impede, senão Média (3).
+    # A categoria é o problema exato; prioridade, tipo, prazos e unidade vêm das regras "[Central]".
+    sim = uid("op-Sim, está parado")
+    for nome, cond, urg in (("Chamado (impede de vender)", "created_if", 5), ("Chamado", "created_unless", 3)):
+        config = {
+            "glpi-form-destination-commonitilfield-titlefield": {"value": tag_resposta(ids["grupo"], "Qual o problema?")},
+            "glpi-form-destination-commonitilfield-contentfield_auto": True,
+            "glpi-form-destination-commonitilfield-itilcategoryfield": {"strategy": "last_valid_answer"},
+            "glpi-form-destination-commonitilfield-urgencyfield": {"strategy": "specific_value",
+                                                                   "specific_urgency_value": urg},
+            "glpi-form-destination-commonitilfield-requesttypefield": {"strategy": "specific_value",
+                                                                       "specific_request_type": 1},
+        }
+        glpi.criar(tipo("Destination\\FormDestination"), {
+            "forms_forms_id": form, "itemtype": F + "Destination\\FormDestinationTicket", "name": nome,
+            "config": json.dumps(config), "creation_strategy": cond,
+            "conditions": json.dumps([{**se("impede", sim), "logic_operator": "and"}]),
+        })
+    print(f"  + Formulário \"{FORM_NOME}\" (id {form}) com {rank[0]} perguntas.")
+
+    # Os dois formulários de exemplo do GLPI ficam desligados: as lojas usam só o da Dorémi.
+    for f in glpi._pedir("GET", f"/{tipo('Form')}?range=0-200"):
+        if f["name"] in ("Report an issue", "Request a service") and f["is_active"]:
+            glpi._pedir("PUT", f"/{tipo('Form')}/{f['id']}", {"input": {"is_active": 0}})
+            print(f"  - desligado o formulário de exemplo \"{f['name']}\"")
 
 
 def main():
@@ -264,6 +407,7 @@ def main():
         categorias(glpi)
         cal = calendario(glpi)
         regras(glpi, slas(glpi, cal))
+        formulario(glpi)
     finally:
         glpi.sair()
     print("Pronto.")
