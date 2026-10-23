@@ -534,6 +534,48 @@ def formulario(glpi):
             print(f"  - desligado o formulário de exemplo \"{f['name']}\"")
 
 
+def inicio_loja(glpi):
+    """Tela inicial das lojas: só "Abrir chamado" (o formulário) e "Meus chamados", em português (decisão 41).
+    Os atalhos de exemplo do GLPI (catálogo, artigos de ajuda, reserva e os formulários de exemplo) saem."""
+    import urllib.parse
+    print("Tela inicial das lojas:")
+    q = lambda t: urllib.parse.quote("Glpi\\Helpdesk\\Tile\\" + t, safe="")
+    form = next((f["id"] for f in glpi._pedir("GET", "/" + urllib.parse.quote(F + "Form", safe="") + "?range=0-200")
+                 if f["name"] == FORM_NOME), None)
+    if form is None:
+        print("  formulário ainda não existe; rode de novo depois de criá-lo.")
+        return
+    paginas = {t["id"]: t for t in glpi._pedir("GET", f"/{q('GlpiPageTile')}?range=0-50")}
+    formtiles = {t["id"]: t for t in glpi._pedir("GET", f"/{q('FormTile')}?range=0-50")}
+    ligados = [i for i in glpi._pedir("GET", f"/{q('Item_Tile')}?range=0-50")
+               if i["itemtype_item"] == "Entity" and i["items_id_item"] == 0]
+    manter = {}
+    for i in ligados:
+        tipo = i["itemtype_tile"].split("\\")[-1]
+        if tipo == "FormTile" and "form" not in manter:
+            manter["form"] = i
+        elif tipo == "GlpiPageTile" and paginas.get(i["items_id_tile"], {}).get("page") == "tickets":
+            manter["meus"] = i
+    for i in ligados:
+        if i not in manter.values():
+            print(f"  - atalho {i['itemtype_tile'].split(chr(92))[-1]} {i['items_id_tile']}")
+            if APLICAR:
+                glpi._pedir("DELETE", f"/{q('Item_Tile')}/{i['id']}?force_purge=1")
+    if "form" in manter and formtiles.get(manter["form"]["items_id_tile"], {}).get("forms_forms_id") != form:
+        print(f"  ~ atalho do formulário → \"{FORM_NOME}\"")
+        if APLICAR:
+            glpi._pedir("PUT", f"/{q('FormTile')}/{manter['form']['items_id_tile']}", {"input": {"forms_forms_id": form}})
+    if "meus" in manter and paginas[manter["meus"]["items_id_tile"]]["title"] != "Meus chamados":
+        print("  ~ atalho \"Meus chamados\"")
+        if APLICAR:
+            glpi._pedir("PUT", f"/{q('GlpiPageTile')}/{manter['meus']['items_id_tile']}", {"input": {
+                "title": "Meus chamados",
+                "description": "Acompanhe os chamados abertos pela loja e responda ao TI."}})
+    for rank, chave in ((1, "form"), (2, "meus")):
+        if chave in manter and manter[chave]["rank"] != rank and APLICAR:
+            glpi._pedir("PUT", f"/{q('Item_Tile')}/{manter[chave]['id']}", {"input": {"rank": rank}})
+
+
 def main():
     print("APLICANDO no GLPI." if APLICAR else "SIMULAÇÃO: nada será gravado (use --aplicar para criar).")
     glpi = Glpi(ler_chaves())
@@ -548,6 +590,7 @@ def main():
         tarefas(glpi)
         config_geral(glpi)
         formulario(glpi)
+        inicio_loja(glpi)
     finally:
         glpi.sair()
     print("Pronto.")

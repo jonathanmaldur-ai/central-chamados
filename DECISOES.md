@@ -43,6 +43,7 @@
 | 38 | Portas abertas | Em 23/10/2026: TCP 80 e 443 do modem → 192.168.1.10, depois de conferido o isolamento (decisão 13). O modem só salvou depois de apagar as duas regras UDP que se sobrepunham (28069 → 41641 para 192.168.0.15 e 34353 → 41641 para 192.168.0.25, provavelmente Tailscale, que funciona sem elas) e só aplicou depois de reiniciado. Certificado Let's Encrypt emitido às 14:52; login público respondendo; SmartStock segue recusando quem vem de fora. |
 | 39 | Proteção de login | O GLPI não bloqueia senha errada; o fail2ban lê as falhas em `/var/log/glpi/event.log` e bloqueia no UFW o IP com 5 falhas em 10 minutos, por 1 hora (dobrando para reincidentes, até 1 semana). Rede interna e VPNs nunca são bloqueadas. Script `scripts/servidor/protecao-login.sh`. |
 | 40 | Implantação gradual | Começa só na **Matriz** (piloto); depois as lojas, uma por vez, cada uma já com os ajustes do piloto. |
+| 41 | Tela inicial das lojas | Só dois atalhos, em português: **Abrir chamado** (o formulário) e **Meus chamados**. Saem os atalhos de exemplo do GLPI (catálogo, artigos de ajuda, reserva e os formulários de exemplo). |
 
 ## Pendentes
 
