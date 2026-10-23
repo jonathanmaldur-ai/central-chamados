@@ -282,6 +282,19 @@ def tarefas(glpi):
                 glpi._pedir("PUT", f"/CronTask/{t['id']}", {"input": {"mode": 2}})
 
 
+def painel(glpi):
+    """Tela principal com o painel de Assistência (só chamados), não o geral com inventário e fornecedores."""
+    print("Painel da tela principal:")
+    atual = [c["value"] for c in glpi._pedir("GET", "/Config?range=0-3000") if c["name"] == "default_dashboard_central"]
+    if atual != ["assistance"]:
+        print("  + painel padrão: Assistência")
+        if APLICAR:
+            try:  # o GLPI grava o valor, mas responde erro porque a linha principal da configuração não muda
+                glpi._pedir("PUT", "/Config/1", {"input": {"id": 1, "default_dashboard_central": "assistance"}})
+            except SystemExit:
+                pass
+
+
 def perfis(glpi):
     """O perfil Observador (vê todos os chamados e aprova, sem alterar) passa a ver também o painel (dashboard)."""
     print("Perfis:")
@@ -444,6 +457,7 @@ def main():
         regras(glpi, slas(glpi, cal))
         perfis(glpi)
         tarefas(glpi)
+        painel(glpi)
         formulario(glpi)
     finally:
         glpi.sair()
