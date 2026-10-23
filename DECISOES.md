@@ -33,6 +33,7 @@
 | 28 | CPF | Não é pedido nos chamados em geral. É **obrigatório só na criação de usuário do PDV e do Administrativo**, porque o sistema de vendas exige no cadastro (finalidade definida, LGPD). O chamado só é visto pelo solicitante e pelo TI. |
 | 29 | Campos de todo chamado | Solicitante, unidade, setor, categoria, problema, sistema ou equipamento, descrição, anexos e "impede de vender ou trabalhar?"; o GLPI registra número, prioridade, status, responsável, datas e solução. |
 | 30 | Perguntas por tipo de chamado | Prioridades padrão sugeridas aprovadas (venda parada = Alta; ponto que impede o registro = Alta; ameaça grave de segurança = Crítica; pedidos e melhorias = Baixa; resto Normal). **Frente de Caixa:** número exato do caixa, obrigatório. **Impressoras:** modelo e mensagem ou problema de fato, obrigatórios. **Criação de usuário:** nome completo, função, unidade, sistema e tipo de acesso; CPF só no PDV e no Administrativo. Tudo em `config/campos.tsv`. |
+| 31 | Equipamentos de pagamento | Nos problemas do dia a dia de TEF, POS e Pinpad basta o número do caixa. **Adquirente e número de série** são obrigatórios só quando for trocar ou movimentar o equipamento (grupo "Troca e movimentação de equipamentos de pagamento"), por exemplo quando a TEF parar e precisar ser substituída. |
 
 ## Pendentes
 
