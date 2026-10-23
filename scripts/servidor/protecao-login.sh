@@ -63,4 +63,4 @@ fail2ban-client reload >/dev/null
 sleep 2
 fail2ban-client status glpi
 echo
-echo "Pronto. Ver bloqueados: sudo fail2ban-client status glpi · Desbloquear: sudo fail2ban-client set glpi unbanip <IP>"
+echo "Pronto. Ver e desbloquear: sudo bash ~/central-chamados/scripts/servidor/desbloquear.sh [login ou IP]"
