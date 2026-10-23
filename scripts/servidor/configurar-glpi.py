@@ -173,8 +173,19 @@ def slas(glpi, cal):
     slm = garantir(glpi, "SLM", slms, SLM_NOME,
                    {"name": SLM_NOME, "calendars_id": cal, "use_ticket_calendar": 0, "entities_id": 0, "is_recursive": 1},
                    f"SLM {SLM_NOME}")
-    existentes = {s["name"]: s["id"] for s in glpi.listar("SLA")}
+    todos = glpi.listar("SLA")
+    existentes = {s["name"]: s["id"] for s in todos}
     por_prioridade = {}
+
+    def ajustar(prefixo, tipo, nome, numero, glpi_unidade):
+        """Já existe o prazo desta prioridade com outro valor? Atualiza o mesmo SLA (os chamados abertos seguem com ele)."""
+        for s in todos:
+            if s["type"] == tipo and s["name"].startswith(prefixo) and s["name"] != nome:
+                print(f"  ~ {s['name']} → {nome}")
+                if APLICAR:
+                    glpi._pedir("PUT", f"/SLA/{s['id']}", {"input": {"name": nome, "number_time": numero,
+                                                                    "definition_time": glpi_unidade}})
+                existentes[nome] = s["id"]
     # Unidade no arquivo em português; o GLPI grava em inglês. Rótulo curto para o nome do prazo.
     unidade = {"minuto": ("minute", "{} min"), "hora": ("hour", "{} h"), "dia": ("day", "{} dia(s) útil(eis)")}
 
@@ -189,6 +200,8 @@ def slas(glpi, cal):
         ttr_nome = f"{l['Prioridade']}: solução em {r_ttr}"
         base = {"slms_id": slm, "calendars_id": cal, "use_ticket_calendar": 0, "end_of_working_day": 0,
                 "entities_id": 0, "is_recursive": 1}
+        ajustar(f"{l['Prioridade']}: 1ª resposta", 1, tto_nome, n_tto, u_tto)
+        ajustar(f"{l['Prioridade']}: solução", 0, ttr_nome, n_ttr, u_ttr)
         tto = garantir(glpi, "SLA", existentes, tto_nome,
                        {**base, "name": tto_nome, "type": 1, "number_time": n_tto, "definition_time": u_tto}, tto_nome)
         ttr = garantir(glpi, "SLA", existentes, ttr_nome,
@@ -222,8 +235,9 @@ def regra(glpi, regras, criterios_todos, acoes_todas, nome, match, condicao, cri
 
 
 def regras(glpi, prazos):
-    """Na abertura: categoria → prioridade e tipo; "impede de vender" (urgência Muito alta) → Crítica;
-    depois prioridade → prazos do SLA (também quando o TI muda a prioridade). A ordem de criação é a ordem de execução."""
+    """Na abertura: categoria → prioridade e tipo; "impede de vender" (urgência Muito alta) sobe um nível;
+    depois prioridade → prazos do SLA (também quando o TI muda a prioridade). Cada regra vê o resultado da anterior,
+    então a ordem importa: ORDEM, no fim, fixa a sequência das regras "[Central]"."""
     print("Regras de negócio:")
     ao_abrir, ao_abrir_e_atualizar = 1, 3
     linhas = ler_tsv("categorias.tsv")
@@ -244,8 +258,19 @@ def regras(glpi, prazos):
         regra(glpi, regras_atuais, crit, acts, f"Tipo {nome_tipo}", "OR", ao_abrir,
               [("itilcategories_id", 0, i) for i in ids if i], [("assign", "type", valor)])
     # O formulário marca urgência "Muito alta" (5) quando a resposta é "impede de vender ou de trabalhar".
-    regra(glpi, regras_atuais, crit, acts, "Impede de vender ou trabalhar = Crítica", "AND", ao_abrir,
-          [("urgency", 0, 5)], [("assign", "priority", PRIORIDADE["Crítica"])])
+    # Sobe só um nível (decisão 36): Alta vira Crítica e, DEPOIS, Normal vira Alta (na ordem inversa, Normal
+    # subiria dois níveis). Baixa continua Baixa: dúvida e pedido nunca viram Crítica.
+    antigo = "[Central] Impede de vender ou trabalhar = Crítica"
+    if antigo in regras_atuais:
+        print(f"  ~ {antigo} → [Central] Impede de vender: Alta vira Crítica")
+        if APLICAR:
+            glpi._pedir("PUT", f"/RuleTicket/{regras_atuais[antigo]}",
+                        {"input": {"name": "[Central] Impede de vender: Alta vira Crítica"}})
+        regras_atuais["[Central] Impede de vender: Alta vira Crítica"] = regras_atuais.pop(antigo)
+    regra(glpi, regras_atuais, crit, acts, "Impede de vender: Alta vira Crítica", "AND", ao_abrir,
+          [("urgency", 0, 5), ("priority", 0, PRIORIDADE["Alta"])], [("assign", "priority", PRIORIDADE["Crítica"])])
+    regra(glpi, regras_atuais, crit, acts, "Impede de vender: Normal vira Alta", "AND", ao_abrir,
+          [("urgency", 0, 5), ("priority", 0, PRIORIDADE["Normal"])], [("assign", "priority", PRIORIDADE["Alta"])])
     for nome_pri, valor in PRIORIDADE.items():
         tto, ttr = prazos[valor]
         if tto is None:  # simulação: o SLA ainda não existe
@@ -269,6 +294,28 @@ def regras(glpi, prazos):
         regra(glpi, regras_atuais, crit, acts, "Aprovação da gestão", "OR", ao_abrir,
               [("itilcategories_id", 0, i) for i in ids if i],
               [("add_validation", "groups_id_validate_any", aprovadores)])
+    ordenar(glpi)
+
+
+ORDEM = ["Prioridade padrão Baixa", "Prioridade padrão Normal", "Prioridade padrão Alta", "Prioridade padrão Crítica",
+         "Tipo Incidente", "Tipo Requisição", "Impede de vender: Alta vira Crítica",
+         "Impede de vender: Normal vira Alta", "SLA Baixa", "SLA Normal", "SLA Alta", "SLA Crítica",
+         "Unidade do solicitante", "Aprovação da gestão"]
+
+
+def ordenar(glpi):
+    """Coloca as regras "[Central]" na sequência de ORDEM, a partir da posição da primeira delas."""
+    atuais = {r["name"]: r for r in glpi.listar("RuleTicket")}
+    nomes = [f"[Central] {n}" for n in ORDEM if f"[Central] {n}" in atuais]
+    if not nomes:
+        return
+    inicio = min(atuais[n]["ranking"] for n in nomes)
+    if [atuais[n]["ranking"] for n in nomes] == list(range(inicio, inicio + len(nomes))):
+        return
+    print("  ~ ordem das regras [Central] ajustada")
+    if APLICAR:
+        for i, n in enumerate(nomes):
+            glpi._pedir("PUT", f"/RuleTicket/{atuais[n]['id']}", {"input": {"ranking": inicio + i}})
 
 
 def tarefas(glpi):
