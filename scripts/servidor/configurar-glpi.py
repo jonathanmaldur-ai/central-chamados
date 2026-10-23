@@ -362,6 +362,30 @@ PERFIS = {
 }
 
 
+def notificacoes(glpi):
+    """Pesquisa de satisfação (decisão 43): o convite vai só para quem abriu o chamado (a loja avalia) e as
+    respostas só para o perfil de Gestão; o TI (administrador e técnico) não recebe nenhum dos dois."""
+    print("Avisos da pesquisa de satisfação:")
+    usuario, perfil = 1, 2                  # Notification::USER_TYPE, Notification::PROFILE_TYPE
+    autor = 3                               # Notification::AUTHOR = quem abriu o chamado
+    gestao = next(p["id"] for p in glpi.listar("Profile") if p["name"] == PERFIS["Observer"])
+    desejado = {"satisfaction": {(usuario, autor)}, "replysatisfaction": {(perfil, gestao)}}
+    alvos = glpi.listar("NotificationTarget")
+    for n in glpi.listar("Notification"):
+        if n["itemtype"] != "Ticket" or n["event"] not in desejado:
+            continue
+        tem = {(a["type"], a["items_id"]): a["id"] for a in alvos if a["notifications_id"] == n["id"]}
+        quer = desejado[n["event"]]
+        for tipo, item in quer - tem.keys():
+            print(f"  + {n['name']}: destinatário {tipo}/{item}")
+            if APLICAR:
+                glpi.criar("NotificationTarget", {"notifications_id": n["id"], "type": tipo, "items_id": item})
+        for chave in tem.keys() - quer:
+            print(f"  - {n['name']}: destinatário {chave[0]}/{chave[1]}")
+            if APLICAR:
+                glpi.apagar("NotificationTarget", tem[chave])
+
+
 def entidade(glpi):
     """Pesquisa de satisfação (nota de 1 a 5, enviada ao solucionar) e fechamento automático 2 dias (48 h) depois."""
     print("Satisfação e fechamento automático:")
@@ -587,6 +611,7 @@ def main():
         regras(glpi, slas(glpi, cal))
         perfis(glpi)
         entidade(glpi)
+        notificacoes(glpi)
         tarefas(glpi)
         config_geral(glpi)
         formulario(glpi)

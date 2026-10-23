@@ -45,6 +45,7 @@
 | 40 | Implantação gradual | Começa só na **Matriz** (piloto); depois as lojas, uma por vez, cada uma já com os ajustes do piloto. |
 | 41 | Tela inicial das lojas | Só dois atalhos, em português: **Abrir chamado** (o formulário) e **Meus chamados**. Saem os atalhos de exemplo do GLPI (catálogo, artigos de ajuda, reserva e os formulários de exemplo). |
 | 42 | Manuais | Manual do Administrador e Guia da Loja em `manuais/*.md` (texto) e `manuais/*.html` (visual Dorémi do SmartStock, para salvar em PDF), gerados por `scripts/gerar-manuais.py`. Cópias editáveis também no Claude Docs. Na cópia pública entram só os `.md`, filtrados (o nome da gestora vira "a gestora"). |
+| 43 | Pesquisa de satisfação | Criada quando o chamado **fecha** (a loja aceita a solução ou ele fecha sozinho depois de 2 dias). O convite vai só para quem abriu o chamado (a loja avalia); as respostas vão só para o perfil **Gestão (aprovação)**. O TI (administrador e técnico) não recebe nenhum dos dois por e-mail. |
 
 ## Pendentes
 
