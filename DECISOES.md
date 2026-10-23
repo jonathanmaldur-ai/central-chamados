@@ -22,6 +22,8 @@
 | 17 | E-mail de envio | Os avisos às lojas e o relatório mensal saem de **ti@example.com**, a mesma conta que o SmartStock já usa. |
 | 18 | Logins | **Lojas:** um login por loja, com o **e-mail da gerência** da loja (os colaboradores não têm e-mail próprio); quem abre o chamado informa o nome no campo "responsável" (decisão 7). **Diretoria** e **Administrativo** têm login próprio. |
 | 19 | Portfólio público | Cópias limpas em `jonathanmaldur-ai/central-chamados` e `jonathanmaldur-ai/smartstock-ai`, geradas por `portfolio/exportar-portfolio.sh` e **publicadas sozinhas a cada commit** (gancho `post-commit`, depois do push do privado), só se a verificação não achar nada sensível. Na Central, lojas e cidades viram "Loja A…I" e passam a ser padrão proibido; o histórico público dela foi recriado sem os nomes. No SmartStock os nomes das lojas continuam (estão no código e nos testes). |
+| 20 | Segurança do PHP e backup | PHP com a correção do PHP2Shell (CVE-2026-109618/109619, pacote Ubuntu 8.3.6-0ubuntu0.24.04.13) e atualizações de segurança automáticas. Pool do GLPI endurecido (`open_basedir`, sem funções de comando, sem URL como arquivo, só `.php`). Backup: banco completo por dia e anexos em espelho incremental, 30 dias, para não encher o HD de backup. Tudo em `scripts/servidor/endurecer-glpi.sh`. |
+| 21 | Senha do admin do GLPI | Escolhida pelo responsável, digitada no terminal (`scripts/servidor/definir-senha-glpi.sh`); o Claude não gera nem vê a senha. |
 
 ## Pendentes
 

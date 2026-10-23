@@ -7,14 +7,15 @@
 #   2. Baixa o GLPI $VERSAO do GitHub e confere o SHA-256 publicado.
 #   3. Arquivos fora da pasta pública: código em /var/www/glpi, configuração em /etc/glpi,
 #      anexos em /var/lib/glpi, logs em /var/log/glpi.
-#   4. Cria o banco, em português, com fuso de São Paulo; troca a senha do admin "glpi" e
-#      desativa os usuários de exemplo (tech, normal, post-only).
+#   4. Cria o banco, em português, com fuso de São Paulo, e desativa os usuários de exemplo
+#      (tech, normal, post-only).
 #   5. Caddy: o SmartStock passa a recusar quem não está na rede interna ou na VPN (decisão 4) e o
 #      chamados.example.com ganha certificado Let's Encrypt (emitido quando as portas 80/443
 #      forem abertas no modem, decisão 13).
-#   6. Tarefas automáticas do GLPI (cron) e backup diário em /backup/glpi (banco + anexos, 30 dias).
+#   6. Tarefas automáticas do GLPI (cron); segurança do PHP e backup diário pelo endurecer-glpi.sh.
+#   7. Pede a senha do admin "glpi" (definir-senha-glpi.sh): quem escolhe é o responsável.
 #
-# Senhas: geradas aqui. A do banco fica só em /etc/glpi (arquivo do GLPI); a do admin aparece UMA vez no final.
+# A senha do banco é aleatória e fica só em /etc/glpi (arquivo do GLPI).
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "Rode com sudo."; exit 1; }
 
@@ -38,7 +39,17 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get install -y -q mariadb-server php$PHPV-fpm php$PHPV-cli php$PHPV-mysql php$PHPV-curl php$PHPV-gd \
     php$PHPV-intl php$PHPV-mbstring php$PHPV-xml php$PHPV-zip php$PHPV-bz2 php$PHPV-bcmath php$PHPV-ldap \
-    php$PHPV-opcache php-apcu python3 curl
+    php$PHPV-opcache php-apcu python3 curl rsync
+
+passo 'PHP com a correção do PHP2Shell'
+# CVE-2026-109618 e CVE-2026-109619 (PHP2Shell, execução remota sem login, explorado desde 10/2026).
+# O Ubuntu corrigiu em 8.3.6-0ubuntu0.24.04.13 (USN-8948-1), mantendo o "8.3.6" no número.
+corrigido=8.3.6-0ubuntu0.24.04.13
+for pacote in php$PHPV-fpm php$PHPV-cli; do
+    v=$(dpkg-query -W -f='${Version}' "$pacote")
+    dpkg --compare-versions "$v" ge "$corrigido" || { echo "$pacote $v não tem a correção do PHP2Shell; parei."; exit 1; }
+    echo "$pacote $v: corrigido."
+done
 
 passo 'Baixando o GLPI'
 api=$(curl -fsSL "https://api.github.com/repos/glpi-project/glpi/releases/tags/$VERSAO")
@@ -77,27 +88,6 @@ chown www-data:www-data "$CONFIG/local_define.php"
 chown -R root:root "$CODIGO"
 chown -R www-data:www-data "$CODIGO/marketplace" 2>/dev/null || true
 
-passo 'PHP (pool glpi)'
-cat > /etc/php/$PHPV/fpm/pool.d/glpi.conf <<EOF
-[glpi]
-user = www-data
-group = www-data
-listen = $SOCK
-listen.owner = caddy
-listen.group = caddy
-pm = ondemand
-pm.max_children = 10
-php_admin_value[session.cookie_httponly] = on
-php_admin_value[session.cookie_secure] = on
-php_admin_value[session.cookie_samesite] = Lax
-php_admin_value[memory_limit] = 256M
-php_admin_value[upload_max_filesize] = 20M
-php_admin_value[post_max_size] = 25M
-php_admin_value[date.timezone] = America/Sao_Paulo
-php_admin_flag[expose_php] = off
-EOF
-systemctl restart php$PHPV-fpm
-
 passo 'Banco de dados'
 senha_db=$(openssl rand -hex 24)
 mariadb <<SQL
@@ -116,10 +106,7 @@ rm -f "$CODIGO/install/install.php"
 console system:check_requirements --no-interaction || true
 
 passo 'Usuários iniciais'
-senha_admin=$(openssl rand -base64 18 | tr -d '/+=' | cut -c1-16)
-hash=$(php -r 'echo password_hash($argv[1], PASSWORD_DEFAULT);' -- "$senha_admin")
 mariadb glpi <<SQL
-UPDATE glpi_users SET password = '$hash' WHERE name = 'glpi';
 UPDATE glpi_users SET is_active = 0 WHERE name IN ('tech', 'normal', 'post-only');
 UPDATE glpi_configs SET value = 'https://$DOMINIO' WHERE context = 'core' AND name = 'url_base';
 UPDATE glpi_configs SET value = 'America/Sao_Paulo' WHERE context = 'core' AND name = 'timezone';
@@ -142,6 +129,9 @@ https://smartstock.internal, https://192.168.1.10 {
 # Central de Chamados (GLPI): único site aberto para a internet, com certificado Let's Encrypt automático.
 $DOMINIO {
 	root * $CODIGO/public
+	request_body {
+		max_size 25MB
+	}
 	encode gzip
 	php_fastcgi unix/$SOCK
 	file_server
@@ -168,30 +158,20 @@ else
     echo "UFW desligado: nada a fazer (quem decide o que entra da internet é o modem)."
 fi
 
-passo 'Tarefas automáticas e backup'
+passo 'Tarefas automáticas'
 if [[ -f $CODIGO/front/cron.php ]]; then tarefa="$CODIGO/front/cron.php"; else tarefa="$CODIGO/bin/console cron"; fi
 echo "* * * * * www-data /usr/bin/php $tarefa >/dev/null 2>&1" > /etc/cron.d/glpi
-cat > /usr/local/sbin/glpi-backup <<EOF
-#!/bin/bash
-# Backup diário da Central de Chamados: banco (mariadb-dump) + anexos e configuração. Guarda 30 dias.
-set -euo pipefail
-umask 077
-destino=/backup/glpi
-mkdir -p "\$destino"
-stamp=\$(date +%F_%H%M%S)
-mariadb-dump --single-transaction glpi | gzip > "\$destino/glpi-banco-\$stamp.sql.gz"
-tar -czf "\$destino/glpi-arquivos-\$stamp.tar.gz" $DADOS $CONFIG
-find "\$destino" -name 'glpi-*' -mtime +30 -delete
-EOF
-chmod 750 /usr/local/sbin/glpi-backup
-echo "45 12 * * * root /usr/local/sbin/glpi-backup" > /etc/cron.d/glpi-backup
-/usr/local/sbin/glpi-backup
+
+passo 'Segurança e backup'
+aqui=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+bash "$aqui/endurecer-glpi.sh"
+
+passo 'Senha do administrador'
+bash "$aqui/definir-senha-glpi.sh" glpi
 
 echo
 echo "================================================================"
 echo " GLPI $versao instalado."
 echo " Endereço: https://$DOMINIO (funciona de fora depois de abrir as portas 80 e 443 no modem)"
-echo " Usuário administrador: glpi"
-echo " Senha: $senha_admin"
-echo " Guarde esta senha agora: ela não fica gravada em lugar nenhum."
+echo " Usuário administrador: glpi (senha escolhida por você agora há pouco)"
 echo "================================================================"
