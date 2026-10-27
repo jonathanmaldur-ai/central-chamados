@@ -6,7 +6,8 @@
 Lê manuais/*.md e grava manuais/*.html ao lado, com o logo embutido. Para o PDF: abrir o .html no Chrome,
 Ctrl+P → Salvar como PDF, papel A4, com "Gráficos de plano de fundo" marcado.
 O conversor entende só o que os manuais usam: títulos, parágrafos, negrito, `código`, links, listas
-(numeradas e com marcadores, um nível de sub-itens) e tabelas.
+(numeradas e com marcadores, um nível de sub-itens), tabelas e imagens numa linha só (`![legenda](imagens/x.png)`,
+embutidas no HTML). Os prints de manuais/imagens saem de scripts/prints (capturar.mjs).
 """
 
 import base64
@@ -56,6 +57,13 @@ def converter(md):
             corpo.append(f"<h2>{inline(linha[3:])}</h2>")
             i += 1
             continue
+        imagem = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)$", linha)
+        if imagem:
+            dados = base64.b64encode((PASTA / imagem[2]).read_bytes()).decode()
+            corpo.append(f'<figure><img src="data:image/png;base64,{dados}" alt="{html.escape(imagem[1])}">'
+                         f"<figcaption>{inline(imagem[1])}</figcaption></figure>")
+            i += 1
+            continue
         if linha.startswith("|"):
             tabela = []
             while i < len(linhas) and linhas[i].startswith("|"):
@@ -83,7 +91,7 @@ def converter(md):
             continue
         paragrafo = [linha]
         i += 1
-        while i < len(linhas) and linhas[i].strip() and not re.match(r"^(#|\||\d+\. |- )", linhas[i]):
+        while i < len(linhas) and linhas[i].strip() and not re.match(r"^(#|\||\d+\. |- |!\[)", linhas[i]):
             paragrafo.append(linhas[i])
             i += 1
         corpo.append(f"<p>{inline(' '.join(paragrafo))}</p>")
@@ -120,6 +128,9 @@ overflow:hidden;font-size:9.5pt;break-inside:avoid}
 th{background:var(--primary-soft);color:var(--primary-active);text-align:left;font-weight:600;padding:7px 10px}
 td{padding:7px 10px;border-top:1px solid var(--border);vertical-align:top}
 tr:nth-child(even) td{background:#fafbfd}
+figure{margin:14px 0 18px;break-inside:avoid}
+figure img{display:block;max-width:100%;height:auto;border:1px solid var(--border);border-radius:8px}
+figcaption{margin-top:6px;color:var(--text-muted);font-size:9pt}
 footer{display:flex;justify-content:space-between;gap:12px;padding:12px 32px;border-top:1px solid var(--border);
 background:var(--muted);color:var(--text-muted);font-size:8.5pt}
 @page{size:A4;margin:14mm 14mm 16mm}

@@ -1,7 +1,7 @@
 /* theme-name: Dorémi escuro */
 // Modo escuro da Central de Chamados com os tokens escuros do SmartStock AI.
 // Modelo: o tema-doremi.sh troca __LOGO__ e __ICONE__ pelas imagens em base64 e grava em /var/lib/glpi/_themes.
-// Logo sobre uma "caixa" clara, como orienta o manual da marca para fundos escuros (igual ao SmartStock).
+// Logo com fundo transparente direto sobre o tema escuro (pedido do responsável; antes ficava numa caixa branca).
 
 $is-dark: true;
 
@@ -55,8 +55,6 @@ $is-dark: true;
         background-size: contain !important;
         background-position: center;
         background-origin: content-box;
-        background-color: #ffffff;
-        border-radius: 6px;
         padding: 4px 8px;
         width: 160px;
         height: 59px;
@@ -66,8 +64,6 @@ $is-dark: true;
         width: 260px;
         height: 96px;
         object-fit: contain;
-        background-color: #ffffff;
-        border-radius: 8px;
         padding: 8px 12px;
     }
 

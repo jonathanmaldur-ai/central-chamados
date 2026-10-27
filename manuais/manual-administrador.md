@@ -34,6 +34,7 @@ A loja abre o chamado pelo formulário **Abrir chamado**; prioridade, tipo, unid
 3. **Prazos do SLA** pela prioridade final.
 4. **Unidade** vem da Localização do login da loja.
 5. **Aprovação** da gestão, nos 18 problemas marcados (seção 4).
+6. **Observadora:** a gestora (`gestora`) entra como observadora em todo chamado e recebe os avisos dele.
 
 **Prazos (SLA)**, contados de segunda a sexta, 08h às 18h, fora dos feriados, e pausados enquanto o chamado está Pendente:
 
@@ -53,10 +54,12 @@ O primeiro passo em todo chamado é **assumir**: é isso que conta o prazo de 1�
 **Onde ver a fila:** a tela principal mostra o painel de Assistência (novos, atrasados, pendentes). A lista completa fica em **Assistência → Chamados**; ordene por prioridade ou por data de abertura.
 
 1. **Assumir:** abra o chamado e clique em **Associar a mim** (ou atribua outro técnico no painel da direita). O status vai para "Em atendimento".
-2. **Conversar com a loja:** use **Acompanhamento** (a loja recebe por e-mail e responde pelo próprio chamado). Para registrar trabalho seu, com tempo gasto, use **Tarefa**.
+2. **Conversar com a loja:** clique em **Responder** (acompanhamento: a loja recebe por e-mail e responde pelo próprio chamado). Para registrar trabalho seu, com tempo gasto, use a seta ao lado → **Criar uma tarefa**.
 3. **Esperando alguém:** mude o status para **Pendente** e escolha o motivo: aguardando solicitante, aguardando fornecedor ou aguardando peça ou equipamento. O prazo do SLA para de contar enquanto estiver pendente.
-4. **Resolver:** clique em **Solução**, escolha o tipo (Resolvido remotamente, Resolvido no local, Troca de equipamento, Orientação ao usuário ou Cancelado) e descreva o que foi feito.
+4. **Resolver:** na seta ao lado de Responder, **Adicionar uma solução**; escolha o tipo (Resolvido remotamente, Resolvido no local, Troca de equipamento, Orientação ao usuário ou Cancelado) e descreva o que foi feito.
 5. **Depois de solucionado:** se a loja aceitar a solução, ou depois de 2 dias (48 h) sem resposta, o chamado fecha. Se recusar, ele volta para "Em atendimento". Ao **fechar**, a loja recebe a pesquisa de satisfação (nota de 1 a 5).
+
+
 
 **Ajustes que só o TI faz no chamado:**
 
@@ -94,7 +97,7 @@ Cada loja tem **um login só**, compartilhado pela equipe; quem abre o chamado e
 | Localização | 06 Loja B (é dela que o chamado pega a unidade) |
 | Ativo | Sim |
 
-**Senha:** deixe em branco e peça para a loja clicar em **"Esqueceu sua senha?"** na tela de login, informando o e-mail cadastrado. O link chega por e-mail e vale por 1 dia. Ou defina uma senha na ficha e passe para a gerência.
+**Senha:** ao criar o usuário **com o e-mail já preenchido**, o GLPI envia o convite de senha, com o login da pessoa (e-mail acrescentado depois não gera convite). Para reenviar: na ficha do usuário, **Ações → Enviar e-mail de redefinição de senha**; ou rode `python3 ~/central-chamados/scripts/servidor/reenviar-convite.py <login>`; ou peça para a loja clicar em **"Esqueceu sua senha?"** na tela de login, informando o e-mail cadastrado. O link chega por e-mail e vale por 1 dia. Ou defina uma senha na ficha e passe para a gerência.
 
 **Desligar um acesso:** na ficha do usuário, **Ativo = Não**. Os chamados antigos continuam no histórico.
 
@@ -169,18 +172,21 @@ Quase tudo roda sozinho; os scripts abaixo ficam em `~/central-chamados/scripts/
 | Script | Para quê |
 | --- | --- |
 | `desbloquear.sh` | Sem nada: lista quem está bloqueado por errar a senha. Com o login (`desbloquear.sh matriz`) ou o IP: desbloqueia |
+| `reenviar-convite.py` | Sem sudo: reenvia o convite de criação de senha pelo login (`python3 ~/central-chamados/scripts/servidor/reenviar-convite.py matriz`) |
 | `definir-senha-glpi.sh` | Define a senha de um usuário pelo terminal (padrão: doremi.ti) |
 | `tema-doremi.sh` | Reinstala o tema Dorémi e o botão de modo escuro. **Rodar depois de toda atualização do GLPI** |
 | `endurecer-glpi.sh` | Reaplica a segurança do PHP e o backup |
 | `caddy-glpi.sh` | Reescreve a configuração do Caddy (site público, interno e bloqueio do SmartStock) |
 | `protecao-login.sh` | Reinstala o bloqueio de tentativas de senha (fail2ban) |
+| `dns-local.sh` | Reinstala o DNS local da Matriz (o nome da Central com o IP interno) |
 | `configurar-glpi.py` | Sem sudo: aplica os arquivos de `config/` (seção 8) |
 
 - **Backup:** todo dia às 12:45, em `/backup/glpi` (HD separado). O banco tem uma cópia por dia; anexos e configuração ficam em espelho, e o que for apagado fica 30 dias em `removidos/`.
 - **Certificado:** o Caddy renova sozinho antes de vencer. Exige as portas 80 e 443 do modem abertas para 192.168.1.10.
 - **Atualizações de segurança** do Ubuntu e do PHP são automáticas. A **versão do GLPI** não: atualize com calma, depois do backup do dia, e rode `tema-doremi.sh` em seguida.
 - **Reiniciar o Caddy** (`sudo systemctl restart caddy`) derruba o SmartStock por 1 a 2 segundos.
-- **Modem:** as regras TCP 80 e 443 → 192.168.1.10 ficam em Solicitação → Encaminhamento de Portas. Regra nova só vale depois de reiniciar o modem (Administração → Reiniciar e redefinir → Reiniciar o Sistema).
+- **Modem (operadora, endereço 192.168.0.1):** os redirecionamentos TCP 80 e 443 e UDP 1194 (VPN) → 192.168.1.10 ficam em **Avançado → Encaminhamento de porta**. Em **Rede → DNSv4**: primário 192.168.1.10 e secundário 181.213.132.4, com a caixa marcada (desmarcar desfaz).
+- **Central dentro da Matriz:** o modem não faz o retorno para a própria rede. O servidor tem um DNS local (`dns-local.sh`) e cada PC fixo da Matriz roda uma vez `scripts/windows/central-matriz-aplicar.bat` (botão direito → Executar como administrador). PC novo na Matriz precisa dele também; em notebook que sai da Matriz, não use (para tirar: `central-matriz-desfazer.bat`).
 
 ## 10. Problemas comuns
 
@@ -190,7 +196,7 @@ Quase tudo roda sozinho; os scripts abaixo ficam em `~/central-chamados/scripts/
 | Loja não lembra a senha | — | "Esqueceu sua senha?" na tela de login, com o e-mail do login |
 | Nenhum e-mail chega | Senha do ti@ mudou ou SMTP fora | Seção 7: trocar a Senha SMTP e enviar o e-mail de teste |
 | Site público não abre de fora | Portas do modem ou certificado | Conferir as regras 80 e 443 no modem; no servidor, `journalctl -u caddy -n 20` |
-| Site público não abre dentro da Matriz | O modem não faz o retorno para a própria rede | Usar https://192.168.1.10:8443 |
+| Site público não abre dentro da Matriz | PC sem o `.bat` da Matriz | Rodar `central-matriz-aplicar.bat` como administrador nesse PC (seção 9); enquanto isso, https://192.168.1.10:8443 |
 | Painel escuro com quadros brancos | Plugin do tema desatualizado após atualização do GLPI | `sudo bash ~/central-chamados/scripts/servidor/tema-doremi.sh` e Ctrl+F5 |
 | Chamado com prioridade ou prazo errado | Problema escolhido errado pela loja | Corrigir categoria e prioridade no chamado (seção 3) |
 | Pedido de aprovação não chega à gestora | Ela fora do grupo ou sem e-mail | Administração → Grupos → Aprovadores; e-mail na ficha dela |

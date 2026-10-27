@@ -20,11 +20,15 @@ Não recebeu o e-mail ou o link venceu? Abra https://chamados.example.com, cliqu
 2. Em **Usuário**, o login da loja. Em **Senha**, a senha criada.
 3. Deixe **Origem do login** como está e clique em **Entrar**.
 
+
+
 Guarde a senha num lugar seguro e passe só para quem trabalha na loja.
 
 ## 2. Abrir um chamado
 
 Na tela inicial, clique em **Abrir chamado** e responda as perguntas; os campos com asterisco (*) são obrigatórios.
+
+
 
 1. **Quem está abrindo o chamado?** Seu nome. O login é da loja, então é assim que o TI sabe com quem falar.
 2. **Setor:** onde você trabalha (Frente de caixa, Estoque, Gerência…).
@@ -39,6 +43,10 @@ Na tela inicial, clique em **Abrir chamado** e responda as perguntas; os campos 
 7. **Foto ou print** (opcional, mas ajuda muito): uma foto da tela com o erro ou do equipamento.
 8. **Isso está impedindo de vender ou de trabalhar?** Veja a seção 3.
 9. Clique em **Enviar**. O chamado recebe um número e a loja recebe um e-mail de confirmação.
+
+
+
+
 
 Um problema por chamado: dois problemas diferentes, dois chamados.
 
@@ -59,6 +67,8 @@ Marcar "Sim" sem necessidade não adianta: dúvidas e pedidos não sobem de prio
 
 A loja recebe um e-mail a cada novidade do chamado, e tudo também fica em **Meus chamados**, na tela inicial.
 
+
+
 **Andamento do chamado:**
 
 | Status | O que significa |
@@ -69,15 +79,19 @@ A loja recebe um e-mail a cada novidade do chamado, e tudo também fica em **Meu
 | Solucionado | O TI resolveu; falta a loja confirmar |
 | Fechado | Encerrado |
 
-**Responder ao TI:** abra o chamado em **Meus chamados** e escreva no campo de resposta (acompanhamento). Pode anexar fotos. Quando o chamado estiver **Pendente aguardando a loja**, responda o quanto antes: o TI só continua depois disso.
+**Responder ao TI:** abra o chamado em **Meus chamados**, clique em **Responder**, escreva e salve. Pode anexar fotos. Quando o chamado estiver **Pendente aguardando a loja**, responda o quanto antes: o TI só continua depois disso.
+
+
 
 **Pedidos que precisam de aprovação** (equipamento novo, trocas e melhorias) passam primeiro pela aprovação da gestão; o chamado mostra quando for aprovado.
 
 **Quando for solucionado:**
 
 1. Confira se o problema foi mesmo resolvido.
-2. Se **foi**, aceite a solução no próprio chamado. Se ninguém responder, ele fecha sozinho em **2 dias**.
-3. Se **não** foi resolvido, recuse a solução dizendo o que ainda falta; ele volta para o TI.
+2. Se **foi**, clique em **Aprovar** no próprio chamado. Se ninguém responder, ele fecha sozinho em **2 dias**.
+3. Se **não** foi resolvido, escreva o que ainda falta e clique em **Recusar**; ele volta para o TI.
+
+
 
 **Pesquisa de satisfação:** quando o chamado **fecha**, a loja recebe um e-mail com a pesquisa: uma nota de **1 a 5** e, se quiser, um comentário. Leva menos de 1 minuto. As respostas vão para a gestão da empresa, não para o TI, então pode avaliar com sinceridade.
 

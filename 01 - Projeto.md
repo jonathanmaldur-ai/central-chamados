@@ -151,7 +151,7 @@ Novo ──► Em atendimento ──► Pendente (pausa o SLA) ──► Solucio
 
 | # | Item | Responsável |
 |---|---|---|
-| 1 | Registro **A `chamados` → 203.0.113.10** no Editor de Zona do cPanel | TI |
+| 1 | Registro **A `chamados` → 203.0.113.10** (era 203.0.113.10 até a troca do modem, decisão 49) no Editor de Zona do cPanel | TI |
 | 2 | Confirmar com a operadora que o IP é **fixo** | TI |
 | 3 | No modem: portas **80 e 443** → 192.168.1.10 | TI |
 | 4 | Decisões da seção 10 | TI |

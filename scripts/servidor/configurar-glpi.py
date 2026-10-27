@@ -294,13 +294,37 @@ def regras(glpi, prazos):
         regra(glpi, regras_atuais, crit, acts, "Aprovação da gestão", "OR", ao_abrir,
               [("itilcategories_id", 0, i) for i in ids if i],
               [("add_validation", "groups_id_validate_any", aprovadores)])
+    # A gestão acompanha todo chamado como observadora (decisão 46). Critério "título qualquer" = sempre.
+    gestora = next((u["id"] for u in glpi.listar("User") if u["name"] == OBSERVADORA), None)
+    if gestora is None:
+        print(f"  ! usuário {OBSERVADORA} não existe; regra de observadora não criada")
+    else:
+        regra(glpi, regras_atuais, crit, acts, "Gestão observa todos os chamados", "AND", ao_abrir,
+              [("name", 6, "/.*/")], [("append", "_users_id_observer", gestora)])
+        observar_abertos(glpi, gestora)
     ordenar(glpi)
+
+
+OBSERVADORA = "gestora"
+
+
+def observar_abertos(glpi, gestora):
+    """Coloca a gestora como observadora nos chamados ainda não fechados que não a têm (sem disparar e-mail)."""
+    fechado, observador = 6, 3  # CommonITILObject::CLOSED, CommonITILActor::OBSERVER
+    ja = {(a["tickets_id"]) for a in glpi._pedir("GET", "/Ticket_User?range=0-9999") or []
+          if a["users_id"] == gestora and a["type"] == observador}
+    for t in glpi._pedir("GET", "/Ticket?range=0-9999") or []:
+        if t["status"] != fechado and t["id"] not in ja:
+            print(f"  + chamado {t['id']}: {OBSERVADORA} como observadora")
+            if APLICAR:
+                glpi.criar("Ticket_User", {"tickets_id": t["id"], "users_id": gestora, "type": observador,
+                                           "_disablenotif": True})
 
 
 ORDEM = ["Prioridade padrão Baixa", "Prioridade padrão Normal", "Prioridade padrão Alta", "Prioridade padrão Crítica",
          "Tipo Incidente", "Tipo Requisição", "Impede de vender: Alta vira Crítica",
          "Impede de vender: Normal vira Alta", "SLA Baixa", "SLA Normal", "SLA Alta", "SLA Crítica",
-         "Unidade do solicitante", "Aprovação da gestão"]
+         "Unidade do solicitante", "Aprovação da gestão", "Gestão observa todos os chamados"]
 
 
 def ordenar(glpi):
@@ -399,6 +423,10 @@ def entidade(glpi):
             glpi._pedir("PUT", "/Entity/0", {"input": muda})
 
 
+ADD_AS_OBSERVER = 16384  # ITILFollowup::ADD_AS_OBSERVER
+GESTAO_SEM = 8 | 16 | 32768  # DELETE, PURGE e Ticket::OWN
+
+
 def perfis(glpi):
     """Nomes em português e o perfil de Gestão (vê todos os chamados e aprova, sem alterar) vendo também o painel."""
     print("Perfis:")
@@ -412,10 +440,23 @@ def perfis(glpi):
             p["name"] = novo
     obs = next(p["id"] for p in todos if p["name"] == PERFIS["Observer"])
     for direito in glpi._pedir("GET", f"/Profile/{obs}/ProfileRight?range=0-999"):
-        if direito["name"] == "dashboard" and not int(direito["rights"]) & 1:
-            print("  + Observador: ver o painel")
+        if direito["name"] in ("dashboard", "logs") and not int(direito["rights"]) & 1:
+            # Painel e aba Histórico (quem mudou status, prioridade ou técnico), só leitura.
+            print(f"  + Observador: ver {'o painel' if direito['name'] == 'dashboard' else 'o histórico'}")
             if APLICAR:
                 glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": int(direito["rights"]) | 1}})
+        # A Gestão vê e aprova, não altera (decisão 35): sem apagar, eliminar nem assumir chamados.
+        if direito["name"] == "ticket" and int(direito["rights"]) & GESTAO_SEM:
+            print("  - Gestão: apagar, eliminar e assumir chamados")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}",
+                            {"input": {"rights": int(direito["rights"]) & ~GESTAO_SEM}})
+        # Como observadora de todos os chamados (decisão 46), a Gestão pergunta e comenta no próprio chamado.
+        if direito["name"] == "followup" and not int(direito["rights"]) & ADD_AS_OBSERVER:
+            print("  + Gestão: responder nos chamados em que é observadora")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}",
+                            {"input": {"rights": int(direito["rights"]) | ADD_AS_OBSERVER}})
     # Quem atende não vê as avaliações (decisão 44): o Técnico de TI fica sem Estatísticas (onde está a média de
     # satisfação); a nota no fim do chamado o plugin "doremi" esconde para esse perfil.
     tecnico = next(p["id"] for p in todos if p["name"] == PERFIS["Technician"])
@@ -425,6 +466,11 @@ def perfis(glpi):
             print("  - Técnico de TI: estatísticas")
             if APLICAR:
                 glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": 0}})
+        if direito["name"] == "dashboard" and not int(direito["rights"]) & 1:
+            # O painel de Assistência não tem quadros de satisfação: o técnico pode ver (decisão 47).
+            print("  + Técnico de TI: ver o painel")
+            if APLICAR:
+                glpi._pedir("PUT", f"/ProfileRight/{direito['id']}", {"input": {"rights": int(direito["rights"]) | 1}})
         if direito["name"] == "ticket" and not int(direito["rights"]) & mudar_prioridade:
             print("  + Técnico de TI: mudar a prioridade do chamado")
             if APLICAR:
@@ -621,6 +667,56 @@ def inicio_loja(glpi):
             glpi._pedir("PUT", f"/{q('Item_Tile')}/{manter[chave]['id']}", {"input": {"rank": rank}})
 
 
+SENHA_TEXTO = """Olá, ##user.firstname## ##user.realname##.
+
+{abertura}
+
+Seu login: ##user.name##
+
+Para {acao}, abra o link abaixo (vale por 1 dia):
+##user.{url}##
+
+Endereço da Central: https://chamados.example.com
+Dúvidas: fale com o TI."""
+
+SENHA_HTML = """<p>Olá, <strong>##user.firstname## ##user.realname##</strong>.</p>
+<p>{abertura}</p>
+<p>Seu login: <strong>##user.name##</strong></p>
+<p>Para {acao}, abra o link abaixo (vale por 1 dia):<br>
+<a href="##user.{url}##">##user.{url}##</a></p>
+<p>Endereço da Central: <a href="https://chamados.example.com">https://chamados.example.com</a><br>
+Dúvidas: fale com o TI.</p>"""
+
+SENHA_MODELOS = {
+    "Password Initialization": dict(
+        assunto="Central de Chamados Dorémi: crie a sua senha",
+        abertura="Seu acesso à Central de Chamados de TI da Dorémi foi criado.",
+        acao="criar a sua senha", url="passwordiniturl"),
+    "Password Forget": dict(
+        assunto="Central de Chamados Dorémi: defina a sua senha",
+        abertura="Recebemos um pedido para definir a senha do seu acesso à Central de Chamados de TI da Dorémi. "
+                 "Se não foi você, ignore este e-mail.",
+        acao="definir a sua senha", url="passwordforgeturl"),
+}
+
+
+def emails_senha(glpi):
+    """E-mails de criar e de redefinir a senha em português e com o login da pessoa."""
+    print("E-mails de senha:")
+    for t in glpi.listar("NotificationTemplate"):
+        m = SENHA_MODELOS.get(t["name"]) if t["itemtype"] == "User" else None
+        if not m:
+            continue
+        quer = {"subject": m["assunto"],
+                "content_text": SENHA_TEXTO.format(**m),
+                "content_html": SENHA_HTML.format(**m)}
+        for tr in glpi._pedir("GET", f"/NotificationTemplate/{t['id']}/NotificationTemplateTranslation"):
+            if any(tr[k] != v for k, v in quer.items()):
+                print(f"  ~ {t['name']}: texto em português com o login")
+                if APLICAR:
+                    glpi._pedir("PUT", f"/NotificationTemplateTranslation/{tr['id']}", {"input": quer})
+
+
 def main():
     print("APLICANDO no GLPI." if APLICAR else "SIMULAÇÃO: nada será gravado (use --aplicar para criar).")
     glpi = Glpi(ler_chaves())
@@ -633,6 +729,7 @@ def main():
         perfis(glpi)
         entidade(glpi)
         notificacoes(glpi)
+        emails_senha(glpi)
         tarefas(glpi)
         config_geral(glpi)
         formulario(glpi)

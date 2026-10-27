@@ -4,7 +4,7 @@
 
 Você acompanha a Central e aprova pedidos com o seu próprio login, pelo mesmo endereço das lojas: https://chamados.example.com.
 
-- **Login:** o TI informa qual é o seu. A senha é sua: no primeiro acesso, use **"Esqueceu sua senha?"** na tela de login com o seu e-mail e siga o link que chega (vale por 1 dia).
+- **Login e senha:** quando o TI cria o seu acesso, chega um e-mail **"Central de Chamados Dorémi: crie a sua senha"** com o seu login e um link para criar a senha (vale por 1 dia). A senha é só sua. Se o link vencer, use **"Esqueceu sua senha?"** na tela de login com o seu e-mail.
 - **Seu perfil é Gestão (aprovação):** você vê todos os chamados de todas as unidades, os painéis e as estatísticas, aprova ou recusa pedidos e responde nos chamados, mas não altera a configuração.
 - **Verificação em duas etapas (recomendado):** em **Minhas configurações → Autenticação em duas etapas**, com um aplicativo no celular como o Google Authenticator. Mesmo que alguém descubra a sua senha, não entra sem o código.
 - **5 senhas erradas seguidas** de fora da rede da empresa bloqueiam o acesso por 1 hora. Se acontecer, fale com o TI, que desbloqueia na hora.
@@ -20,13 +20,22 @@ Equipamento novo, trocas e melhorias só são executados pelo TI depois da sua a
 3. Leia o pedido (quem pediu, unidade, o que e por quê) e clique em **Aprovar** ou **Recusar**. Escreva um comentário curto, principalmente ao recusar: a loja e o TI leem.
 4. Aprovado, o TI executa. Recusado, o TI encerra o chamado como Cancelado, com o seu motivo.
 
+
+
 Se tiver dúvida antes de decidir, escreva uma pergunta no próprio chamado (acompanhamento): a loja e o TI recebem por e-mail.
 
 ## 3. Acompanhar os chamados
 
+Você entra como **observadora em todos os chamados**, automaticamente: recebe por e-mail os avisos de cada um (aberto, respondido, solucionado) e eles aparecem na sua tela.
+
 A tela principal abre no painel **Assistência**: chamados novos, atrasados, pendentes, solucionados e a evolução no ano.
 
+
+
 - **Lista completa:** menu **Assistência → Chamados**. Filtre por **Localização** (unidade), status, categoria ou período, e ordene por prioridade ou data.
+
+
+
 - **Dentro de um chamado**, a linha do tempo mostra toda a conversa entre a loja e o TI, as aprovações e a solução. A aba **Histórico** mostra cada mudança: status, prioridade, categoria, técnico, com data e autor.
 - **Prazos (SLA):** cada chamado mostra o prazo de 1ª resposta e o de solução, e se estourou. Os prazos contam de segunda a sexta, 08h às 18h, fora dos feriados.
 
