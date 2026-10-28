@@ -42,7 +42,7 @@ Na tela inicial, clique em **Abrir chamado** e responda as perguntas; os campos 
 6. **Descreva o que aconteceu:** o que você estava fazendo, o que apareceu na tela, desde quando acontece.
 7. **Foto ou print** (opcional, mas ajuda muito): uma foto da tela com o erro ou do equipamento.
 8. **Isso está impedindo de vender ou de trabalhar?** Veja a seção 3.
-9. Clique em **Enviar**. O chamado recebe um número e a loja recebe um e-mail de confirmação.
+9. Clique em **Enviar**. O chamado recebe um número e aparece em **Meus chamados**.
 
 
 
@@ -65,7 +65,7 @@ Marcar "Sim" sem necessidade não adianta: dúvidas e pedidos não sobem de prio
 
 ## 4. Acompanhar, responder e avaliar
 
-A loja recebe um e-mail a cada novidade do chamado, e tudo também fica em **Meus chamados**, na tela inicial.
+A loja recebe e-mail só quando precisa agir: quando o TI escreve no chamado (para responder) e quando ele é solucionado (para aprovar). Todo o resto fica em **Meus chamados**, na tela inicial.
 
 
 

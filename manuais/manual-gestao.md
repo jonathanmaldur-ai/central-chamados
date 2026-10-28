@@ -22,11 +22,11 @@ Equipamento novo, trocas e melhorias só são executados pelo TI depois da sua a
 
 
 
-Se tiver dúvida antes de decidir, escreva uma pergunta no próprio chamado (acompanhamento): a loja e o TI recebem por e-mail.
+Se tiver dúvida antes de decidir, escreva uma pergunta no próprio chamado (**Responder**): a loja recebe por e-mail e o TI vê no chamado.
 
 ## 3. Acompanhar os chamados
 
-Você entra como **observadora em todos os chamados**, automaticamente: recebe por e-mail os avisos de cada um (aberto, respondido, solucionado) e eles aparecem na sua tela.
+Você entra como **observadora em todos os chamados**, automaticamente: eles aparecem na sua tela, e por e-mail chegam só o aviso de **chamado novo**, os **pedidos de aprovação** e as **respostas da pesquisa de satisfação**.
 
 A tela principal abre no painel **Assistência**: chamados novos, atrasados, pendentes, solucionados e a evolução no ano.
 

@@ -356,6 +356,7 @@ def tarefas(glpi):
 CONFIG_GERAL = {
     "default_dashboard_central": ("assistance", "tela principal com o painel de Assistência (só chamados)"),
     "names_format": ("1", "nomes como Nome Sobrenome"),
+    "notification_to_myself": ("0", "ninguém recebe e-mail do que ele mesmo fez (decisão 54)"),
 }
 
 
@@ -386,20 +387,46 @@ PERFIS = {
 }
 
 
+# Quem recebe cada aviso de chamado (decisões 43 e 54). (1, x) = usuário: 1 administrador (o e-mail do TI),
+# 3 quem abriu (a loja), 21 observador (a gestora), 39 mencionado, 40 quem precisa aprovar; (2, x) = perfil.
+# O TI só recebe "novo chamado"; a loja, as respostas do TI e a solução; a gestora, o novo chamado, os pedidos
+# de aprovação e as respostas da pesquisa de satisfação. None = aviso desligado.
+AVISOS = {
+    "new": {(1, 1), (1, 21)},
+    "add_followup": {(1, 3)},
+    "solved": {(1, 3)},
+    "validation": {(1, 40)},
+    "satisfaction": {(1, 3)},
+    "user_mention": {(1, 39)},
+    **dict.fromkeys(["closed", "update", "add_task", "update_followup", "update_task", "delete_followup",
+                     "delete_task", "validation_answer", "delete", "requester_user", "requester_group",
+                     "observer_user", "observer_group", "assign_user", "assign_group", "assign_supplier",
+                     "auto_reminder", "add_document"]),
+}
+
+
 def notificacoes(glpi):
-    """Pesquisa de satisfação (decisão 43): o convite vai só para quem abriu o chamado (a loja avalia) e as
-    respostas só para o perfil de Gestão; o TI (administrador e técnico) não recebe nenhum dos dois."""
-    print("Avisos da pesquisa de satisfação:")
-    usuario, perfil = 1, 2                  # Notification::USER_TYPE, Notification::PROFILE_TYPE
-    autor = 3                               # Notification::AUTHOR = quem abriu o chamado
+    """Avisos de chamado por e-mail: cada um só para quem precisa (AVISOS). A resposta da pesquisa de satisfação
+    vai só para o perfil de Gestão (decisão 43)."""
+    print("Avisos de chamado por e-mail:")
     gestao = next(p["id"] for p in glpi.listar("Profile") if p["name"] == PERFIS["Observer"])
-    desejado = {"satisfaction": {(usuario, autor)}, "replysatisfaction": {(perfil, gestao)}}
+    desejado = {**AVISOS, "replysatisfaction": {(2, gestao)}}
     alvos = glpi.listar("NotificationTarget")
     for n in glpi.listar("Notification"):
         if n["itemtype"] != "Ticket" or n["event"] not in desejado:
             continue
-        tem = {(a["type"], a["items_id"]): a["id"] for a in alvos if a["notifications_id"] == n["id"]}
         quer = desejado[n["event"]]
+        if quer is None:
+            if n["is_active"]:
+                print(f"  - {n['name']}: desligado")
+                if APLICAR:
+                    glpi._pedir("PUT", f"/Notification/{n['id']}", {"input": {"is_active": 0}})
+            continue
+        if not n["is_active"]:
+            print(f"  + {n['name']}: ligado")
+            if APLICAR:
+                glpi._pedir("PUT", f"/Notification/{n['id']}", {"input": {"is_active": 1}})
+        tem = {(a["type"], a["items_id"]): a["id"] for a in alvos if a["notifications_id"] == n["id"]}
         for tipo, item in quer - tem.keys():
             print(f"  + {n['name']}: destinatário {tipo}/{item}")
             if APLICAR:

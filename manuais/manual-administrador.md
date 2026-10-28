@@ -129,7 +129,15 @@ O painel gerencial com SLA cumprido, tempo médio, satisfação e reincidência 
 
 ## 7. E-mail e notificações
 
-Os avisos saem de **ti@example.com**, que também recebe todo chamado novo.
+Os avisos saem de **ti@example.com**. Cada pessoa recebe só o que precisa (decisão 54), e ninguém recebe e-mail do que ele mesmo fez:
+
+| Quem | Recebe por e-mail |
+| --- | --- |
+| TI (ti@) | Só **chamado novo** |
+| Loja | Respostas do TI no chamado, **chamado solucionado** e a pesquisa de satisfação |
+| Gestora | **Chamado novo**, **pedidos de aprovação** e as respostas da pesquisa de satisfação |
+
+Encerramento, tarefas, mudanças de técnico ou de observador e respostas da aprovação não geram e-mail. Tudo fica no chamado.
 
 | Configuração (Configurar → Notificações → Configuração de notificações por e-mail) | Valor |
 | --- | --- |
@@ -139,7 +147,7 @@ Os avisos saem de **ti@example.com**, que também recebe todo chamado novo.
 | Usuário | ti@example.com |
 
 - **Trocou a senha do ti@?** Troque também a **Senha SMTP** nessa tela, salve e use **Enviar um e-mail de teste**. Sem isso, nenhum aviso sai.
-- **Quem recebe o quê:** Configurar → Notificações → Notificações. Cada evento (chamado novo, acompanhamento, solução, aprovação, satisfação) tem os seus destinatários.
+- **Quem recebe o quê** fica na tabela `AVISOS` de `configurar-glpi.py`: mude ali e rode o script (seção 8), em vez de mexer em Configurar → Notificações → Notificações, que o script desfaria.
 - **Seu e-mail pessoal no doremi.ti:** cadastre em Minhas configurações para receber também os avisos de técnico.
 - Os e-mails saem pela tarefa automática que roda a cada minuto; um aviso pode levar até 1 a 2 minutos.
 
