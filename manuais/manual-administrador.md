@@ -182,7 +182,7 @@ Quase tudo roda sozinho; os scripts abaixo ficam em `~/central-chamados/scripts/
 | `desbloquear.sh` | Sem nada: lista quem está bloqueado por errar a senha. Com o login (`desbloquear.sh matriz`) ou o IP: desbloqueia |
 | `reenviar-convite.py` | Sem sudo: reenvia o convite de criação de senha pelo login (`python3 ~/central-chamados/scripts/servidor/reenviar-convite.py matriz`) |
 | `definir-senha-glpi.sh` | Define a senha de um usuário pelo terminal (padrão: doremi.ti) |
-| `tema-doremi.sh` | Reinstala o tema Dorémi e o botão de modo escuro. **Rodar depois de toda atualização do GLPI** |
+| `tema-doremi.sh` | Reinstala o tema Dorémi, o botão de modo escuro e a atualização automática da tela do chamado. **Rodar depois de toda atualização do GLPI** |
 | `endurecer-glpi.sh` | Reaplica a segurança do PHP e o backup |
 | `caddy-glpi.sh` | Reescreve a configuração do Caddy (site público, interno e bloqueio do SmartStock) |
 | `protecao-login.sh` | Reinstala o bloqueio de tentativas de senha (fail2ban) |

@@ -1,14 +1,15 @@
 <?php
 
 /**
- * Plugin "Dorémi" da Central de Chamados: botão de modo claro/escuro no topo do GLPI.
+ * Plugin "Dorémi" da Central de Chamados: botão de modo claro/escuro no topo do GLPI e tela do chamado que se
+ * atualiza sozinha quando chega novidade (decisão 55).
  * Troca a paleta do usuário entre "doremi" e "doremi_escuro" (temas em /var/lib/glpi/_themes).
  * Instalado e atualizado pelo scripts/servidor/tema-doremi.sh.
  */
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_DOREMI_VERSION', '1.0.3');
+define('PLUGIN_DOREMI_VERSION', '1.0.4');
 
 function plugin_version_doremi(): array
 {
@@ -29,7 +30,7 @@ function plugin_init_doremi(): void
     global $PLUGIN_HOOKS;
 
     // Só para quem já entrou: na tela de login vale a paleta padrão.
-    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['doremi'] = 'js/modo-escuro.js';
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['doremi'] = ['js/modo-escuro.js', 'js/novidades.js'];
 
     // Quem atende (perfil Técnico de TI) não vê a avaliação da loja no fim do chamado (decisão 44).
     if (($_SESSION['glpiactiveprofile']['name'] ?? '') === 'Técnico de TI') {
