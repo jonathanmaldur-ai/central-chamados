@@ -357,7 +357,7 @@ CONFIG_GERAL = {
     "default_dashboard_central": ("assistance", "tela principal com o painel de Assistência (só chamados)"),
     "names_format": ("1", "nomes como Nome Sobrenome"),
     "notification_to_myself": ("0", "ninguém recebe e-mail do que ele mesmo fez (decisão 54)"),
-    "refresh_views": ("1", "listas de chamados se atualizam sozinhas a cada 1 minuto (decisão 55)"),
+    "refresh_views": ("0", "sem recarregamento fixo das listas; o plugin Dorémi só atualiza quando há novidade (decisão 55)"),
 }
 
 

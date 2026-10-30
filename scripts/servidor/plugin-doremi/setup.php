@@ -9,7 +9,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_DOREMI_VERSION', '1.0.4');
+define('PLUGIN_DOREMI_VERSION', '1.0.5');
 
 function plugin_version_doremi(): array
 {
