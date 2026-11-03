@@ -1,0 +1,9 @@
+/* Tela inicial das lojas: o GLPI esconde as ilustrações ao lado de "Como podemos ajudá-lo?" em janelas de até
+   1600 px, o que inclui os monitores comuns das lojas (1366 px, ou 1920 px com zoom de 125%) (decisão 57).
+   De 1200 a 1600 px elas aparecem menores, cabendo entre a borda e a barra de pesquisa; abaixo disso continuam ocultas. */
+@media (min-width: 1200px) and (max-width: 1600px) {
+    .helpdesk-home-container .scene {
+        display: flex !important;
+        width: min(300px, calc((100vw - 760px) / 2));
+    }
+}

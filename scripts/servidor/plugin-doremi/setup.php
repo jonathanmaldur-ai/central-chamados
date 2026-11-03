@@ -9,7 +9,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_DOREMI_VERSION', '1.0.5');
+define('PLUGIN_DOREMI_VERSION', '1.0.6');
 
 function plugin_version_doremi(): array
 {
@@ -32,9 +32,12 @@ function plugin_init_doremi(): void
     // Só para quem já entrou: na tela de login vale a paleta padrão.
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['doremi'] = ['js/modo-escuro.js', 'js/novidades.js'];
 
+    // Ilustrações da tela inicial também nos monitores menores das lojas (decisão 57).
+    $PLUGIN_HOOKS[Hooks::ADD_CSS]['doremi'] = ['css/ilustracoes.css'];
+
     // Quem atende (perfil Técnico de TI) não vê a avaliação da loja no fim do chamado (decisão 44).
     if (($_SESSION['glpiactiveprofile']['name'] ?? '') === 'Técnico de TI') {
-        $PLUGIN_HOOKS[Hooks::ADD_CSS]['doremi'] = 'css/sem-satisfacao.css';
+        $PLUGIN_HOOKS[Hooks::ADD_CSS]['doremi'][] = 'css/sem-satisfacao.css';
     }
 }
 
