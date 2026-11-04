@@ -65,6 +65,6 @@
 
 ## Pendentes
 
-- operadora: pedir IP fixo (o IP mudou três vezes; decisão 56) e desligar o IPv6 da LAN (decisões 48 e 49). Depois, gerar de novo os perfis da VPN com o IP novo.
-- VPN: regenerar os perfis com o IP atual (186.223.48.102), ou com o nome `chamados.example.com` para não depender do IP.
+- operadora: IP fixo descartado (decisão 59, DuckDNS); e desligar o IPv6 da LAN (decisões 48 e 49). Depois, gerar de novo os perfis da VPN com o IP novo.
+- VPN: nos `.ovpn` dos gestores trocar `remote <IP> 1194` por `remote chamados.example.com 1194` (a chave e a senha continuam; hoje apontam para 203.0.113.10). No servidor, com ok do responsável (a VPN é do SmartStock), pôr o nome em `/etc/openvpn/server/endpoint.conf` para os próximos perfis. Conferir com `sudo smartstock-vpn listar` se o Julio já tem acesso.
 - Piloto na Matriz: lista de quem abre chamado lá (nome, e-mail, setor). Depois, loja por loja: e-mail da gerência.
