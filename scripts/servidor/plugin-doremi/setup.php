@@ -9,7 +9,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_DOREMI_VERSION', '1.0.7');
+define('PLUGIN_DOREMI_VERSION', '1.0.8');
 
 function plugin_version_doremi(): array
 {
@@ -30,7 +30,7 @@ function plugin_init_doremi(): void
     global $PLUGIN_HOOKS;
 
     // Só para quem já entrou: na tela de login vale a paleta padrão.
-    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['doremi'] = ['js/modo-escuro.js', 'js/novidades.js', 'js/pesquisa-categorias.js'];
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['doremi'] = ['js/modo-escuro.js', 'js/novidades.js', 'js/pesquisa-categorias.js', 'js/colar-anexo.js'];
 
     // Ilustrações da tela inicial também nos monitores menores das lojas (decisão 57).
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['doremi'] = ['css/ilustracoes.css'];

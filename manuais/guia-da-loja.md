@@ -40,7 +40,7 @@ Na tela inicial, clique em **Abrir chamado** e responda as perguntas; os campos 
     - **Impressora:** o modelo (na frente ou na etiqueta) e a mensagem que aparece, ou o que ela está fazendo.
     - **Criar usuário:** nome completo, função, unidade e tipo de acesso do colaborador; para PDV e Administrativo, também o CPF.
 6. **Descreva o que aconteceu:** o que você estava fazendo, o que apareceu na tela, desde quando acontece.
-7. **Foto ou print** (opcional, mas ajuda muito): uma foto da tela com o erro ou do equipamento.
+7. **Foto ou print** (opcional, mas ajuda muito): uma foto da tela com o erro ou do equipamento. Tirou um print? Não precisa salvar: é só apertar **Ctrl+V** na página.
 8. **Isso está impedindo de vender ou de trabalhar?** Veja a seção 3.
 9. Clique em **Enviar**. O chamado recebe um número e aparece em **Meus chamados**.
 
@@ -103,7 +103,7 @@ A loja recebe e-mail só quando precisa agir: quando o TI escreve no chamado (pa
 | A página parou de abrir depois de errar a senha | Por segurança, **5 senhas erradas seguidas bloqueiam o acesso por 1 hora**. Ligue para o TI, que desbloqueia na hora |
 | Não achei meu problema na lista | Digite outra palavra na pesquisa ou escolha **Geral / Outros** e explique na descrição |
 | Escolhi o problema errado | Envie assim mesmo e avise na descrição; o TI corrige |
-| Como tirar print no computador | Tecla **Windows + Shift + S**, selecione a área e cole no campo de foto ou anexe a imagem salva |
+| Como tirar print no computador | Tecla **Windows + Shift + S**, selecione a área e aperte **Ctrl+V** na página do chamado, sem salvar nada |
 | Não chegou e-mail do chamado | Olhe no spam; o chamado continua visível em **Meus chamados** |
 | Problema urgente que não pode esperar | Abra o chamado e ligue também para o TI |
 

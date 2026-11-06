@@ -54,7 +54,7 @@ O primeiro passo em todo chamado é **assumir**: é isso que conta o prazo de 1�
 **Onde ver a fila:** a tela principal mostra o painel de Assistência (novos, atrasados, pendentes). A lista completa fica em **Assistência → Chamados**; ordene por prioridade ou por data de abertura.
 
 1. **Assumir:** abra o chamado e clique em **Associar a mim** (ou atribua outro técnico no painel da direita). O status vai para "Em atendimento".
-2. **Conversar com a loja:** clique em **Responder** (acompanhamento: a loja recebe por e-mail e responde pelo próprio chamado). Para registrar trabalho seu, com tempo gasto, use a seta ao lado → **Criar uma tarefa**.
+2. **Conversar com a loja:** clique em **Responder** (acompanhamento: a loja recebe por e-mail e responde pelo próprio chamado). Para anexar um print, aperte **Ctrl+V**, sem salvar arquivo: no texto, a imagem entra na mensagem; fora dele, vira anexo. Para registrar trabalho seu, com tempo gasto, use a seta ao lado → **Criar uma tarefa**.
 3. **Esperando alguém:** mude o status para **Pendente** e escolha o motivo: aguardando solicitante, aguardando fornecedor ou aguardando peça ou equipamento. O prazo do SLA para de contar enquanto estiver pendente.
 4. **Resolver:** na seta ao lado de Responder, **Adicionar uma solução**; escolha o tipo (Resolvido remotamente, Resolvido no local, Troca de equipamento, Orientação ao usuário ou Cancelado) e descreva o que foi feito.
 5. **Depois de solucionado:** se a loja aceitar a solução, ou depois de 2 dias (48 h) sem resposta, o chamado fecha. Se recusar, ele volta para "Em atendimento". Ao **fechar**, a loja recebe a pesquisa de satisfação (nota de 1 a 5).
@@ -182,7 +182,7 @@ Quase tudo roda sozinho; os scripts abaixo ficam em `~/central-chamados/scripts/
 | `desbloquear.sh` | Sem nada: lista quem está bloqueado por errar a senha. Com o login (`desbloquear.sh matriz`) ou o IP: desbloqueia |
 | `reenviar-convite.py` | Sem sudo: reenvia o convite de criação de senha pelo login (`python3 ~/central-chamados/scripts/servidor/reenviar-convite.py matriz`) |
 | `definir-senha-glpi.sh` | Define a senha de um usuário pelo terminal (padrão: doremi.ti) |
-| `tema-doremi.sh` | Reinstala o tema Dorémi, o botão de modo escuro e a atualização automática da tela do chamado. **Rodar depois de toda atualização do GLPI** |
+| `tema-doremi.sh` | Reinstala o tema Dorémi, o botão de modo escuro, a atualização automática da tela do chamado, a pesquisa de "Qual o problema?" e o anexo com Ctrl+V. **Rodar depois de toda atualização do GLPI** |
 | `endurecer-glpi.sh` | Reaplica a segurança do PHP e o backup |
 | `caddy-glpi.sh` | Reescreve a configuração do Caddy (site público, interno e bloqueio do SmartStock) |
 | `protecao-login.sh` | Reinstala o bloqueio de tentativas de senha (fail2ban) |
