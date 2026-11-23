@@ -15,7 +15,7 @@ $(function () {
     const SINONIMOS = {
         nf: ['nota fiscal'], nfe: ['nota fiscal'], pc: ['computador'], notebook: ['computador'],
         net: ['internet'], maquina: ['maquininha'], cartao: ['maquininha', 'pinpad'], login: ['senha', 'usuario'],
-        cupom: ['comprovante', 'fiscal'],
+        cupom: ['comprovante', 'fiscal'], tonner: ['toner'], cartucho: ['toner'], tinta: ['toner'],
     };
 
     const normalizar = function (texto) {
